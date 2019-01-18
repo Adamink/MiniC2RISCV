@@ -7,8 +7,8 @@ using namespace std;
 #define YYERROR_VERBOSE 1
 %}
 /* generate include-file with symbols and types */
-%defines
-%locations
+%define api.location.file "parse.y"
+// %locations
 
 /* a more advanced semantic type */
 %union {
@@ -16,9 +16,11 @@ using namespace std;
     char* sval;
     Node* nval;
 }
-%token <ival> TYPE INTEGER PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS GREATER EQUAL NOTEQUAL ASSIGN IF ELSE WHILE RETURN MAIN DOUBLEPLUS DOUBLEMINUS
+%token <ival> TYPE INTEGER PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS GREATER
+ EQUAL NOTEQUAL ASSIGN IF ELSE WHILE RETURN MAIN DOUBLEPLUS DOUBLEMINUS
 %token <sval> '(' ')' '[' ']' '{' '}' ';' ',' ID
-%type <nval> Program GlobalList FuncDecl VarDefn FuncDefn Blocks Block Statements Statement ParaList ParaDecls ParaDecl ExprList Expressions Expression  
+%type <nval> Program GlobalList FuncDecl VarDefn FuncDefn Blocks Block 
+Statements Statement ParaList ParaDecls ParaDecl ExprList Expressions Expression
 
 %nonassoc IF
 %nonassoc ELSE
@@ -75,7 +77,9 @@ GlobalList:
     |
     error 
     {
-        string errMsg = "your code is such a mess that compiler can't decide which part is wrong";
+        string errMsg = 
+        "your code is such a mess that compiler" \
+        " can't decide which part is wrong";
         printErrorInfo(errMsg, @1); // ?
         $$ = new EmptyNode();
     }
@@ -244,7 +248,8 @@ Block:
         ret->addChild($3);
         ret->addChild($5);
         string l = newLabel();
-        string jmpCode = "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l + "\n";
+        string jmpCode = 
+        "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l + "\n";
         ret->appendCodeMiddle(jmpCode);
         ret->appendCodeAfter(l + ":\n");
         $$ = ret;
@@ -261,7 +266,8 @@ Block:
         $$ = ret;
         string l1 = newLabel();
         string l2 = newLabel();
-        string jmp1 = "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l1 + "\n";
+        string jmp1 = 
+        "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l1 + "\n";
         string jmp2 = "goto " + l2 + "\n";
         midNode->appendCodeBefore(jmp1);
         midNode->appendCodeMiddle(jmp2 + l1 + ":\n");
@@ -275,7 +281,8 @@ Block:
         ret->addChild($5);
         string l1 = newLabel();
         string l2 = newLabel();
-        string jmp1 = "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l2 + "\n";
+        string jmp1 = 
+        "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l2 + "\n";
         string jmp2 = "goto " + l1 + "\n";
         ret->appendCodeMiddle(l1 + ":\n" + jmp1);
         ret->appendCodeAfter(jmp2 + l2 + ":\n");
@@ -378,7 +385,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " + " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " + 
+         ((ExprNode*)$1)->valueID + " + " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;           
@@ -390,7 +398,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " - " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " + 
+         ((ExprNode*)$1)->valueID + " - " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;           
@@ -402,7 +411,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = -" + ((ExprNode*)$2)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = -" +
+         ((ExprNode*)$2)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;      
@@ -414,7 +424,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " * " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " * " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;           
@@ -426,7 +437,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " / " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " / " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;      
@@ -442,7 +454,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " % " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " % " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;      
@@ -458,7 +471,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " && " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = "
+         + ((ExprNode*)$1)->valueID + " && " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;      
@@ -470,7 +484,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " || " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " || " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;   
@@ -481,7 +496,8 @@ Expression:
         ExprNode* ret = new ExprNode();
         ret->addChild($2);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = !" + ((ExprNode*)$2)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = !" +
+         ((ExprNode*)$2)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;
@@ -493,7 +509,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " < " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " < " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;      
@@ -505,7 +522,8 @@ Expression:
         ret->addChild($1);
         ret->addChild($3);
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " > " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " > " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
         $$ = (Node*)ret;  
@@ -518,7 +536,8 @@ Expression:
         $$ = (Node*)ret;     
 
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " == " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " == " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
     }
@@ -530,7 +549,8 @@ Expression:
         $$ = (Node*)ret;             
 
         string tmp = newTemp();
-        string code = "var " + tmp + "\n" + tmp + " = " + ((ExprNode*)$1)->valueID + " != " + ((ExprNode*)$3)->valueID + "\n";
+        string code = "var " + tmp + "\n" + tmp + " = " +
+         ((ExprNode*)$1)->valueID + " != " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
     }
@@ -595,7 +615,9 @@ Expression:
         string temp2 = newTemp();
         string valueID = ((ExprNode*)$3)->valueID;
         string code;
-        code = "var " + temp1 + "\n" + temp1 + " = 4 * " + valueID + "\n" + "var " + temp2 + "\n" + temp2 + " = " + EName + "[" + temp1 + "]" + "\n";
+        code = "var " + temp1 + "\n" + temp1 + " = 4 * " + valueID + "\n" +
+         "var " + temp2 + "\n" + temp2 + " = " + EName + "[" + temp1 + "]" +
+          "\n";
         ret->appendCodeAfter(code);
         ret->valueID = temp2;
     }
