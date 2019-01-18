@@ -1,0 +1,188 @@
+#include "env.h"
+#include <stack>
+using namespace std;
+
+/*-----------------------------------------------
+ * global env
+ *-----------------------------------------------*/
+string inputFileName = string();
+string funcName = string();
+bool inFunc(){
+    return Scope.currentScope > 0;
+}
+/*-----------------------------------------------
+ * scope management
+ *-----------------------------------------------*/
+Scope::Scope(){
+    counter = 0;
+    currentScope = 0;
+    aliveScope = vector<int>();
+    aliveScope.push_back(currentScope);
+}
+bool Scope::isScopeAlive(int x){
+    for(auto& i:aliveScope)
+        if(x==i)
+            return true;
+    return false;
+}
+void Scope::newScope(){
+    counter++;
+    currentScope = counter;
+    aliveScope.push_back(currentScope);
+}
+void Scope::endScope(){
+    currentScope = aliveScope.back();
+    aliveScope.pop_back();
+}
+Scope scope = Scope();
+void newScope(){
+    score.newScope();
+}
+void endScope(){
+    score.endScope();
+}
+bool isScopeAlive(int s){
+    return score.isScopeAlive(s);
+}
+
+/*-----------------------------------------------
+ * func management
+ *-----------------------------------------------*/
+FuncEntry::FuncEntry(string name, FuncType t, ParaListNode* p){
+    funcName = name;
+    funcType = t;
+    int paraCounter = 0;
+    // deep-first traverse node p to get all para in order
+    // allocate para name and store in paraList
+    if(p!NULL){
+        stack<Node*> dfsStack = stack<Node*>();
+        int l = p->children.size();
+        for(int i = l-1;i>=0;i--)
+            dfsStack.push(p->children[i]);
+        while(!dfsStack.empty()){
+            Node* top = dfsStack.top();
+            dfsStack.pop();
+            if(top->nodeType!=ParaNodeType){
+                vector<Node*> topchildren = top->children();
+                int l = topchildren.size();
+                for(int i = l-1;i>=0;i--)
+                    dfsStack.push(topchildren[i]);
+            }
+            else{
+                ParaNode* para = (ParaNode*)top;
+                EName = "p" + to_string(paraCounter);
+                paraCounter++;
+                IdEntry id = IdEntry(para->CName, EName,para->idType,scope.currentScope);
+                paraList.push_back(id);    
+            }
+        }
+    }
+
+}
+bool isFuncParaSame(FuncEntry& a, FuncEntry& b){
+    int la = a.paraList.size();
+    int lb = b.paraList.size();
+    if(la!=lb) return false;
+    for(int i = 0;i<la;i++){
+        if(a.paraList[i].idType!=b.paraList[i].idType)
+            return false;
+    }
+    return true;
+}
+vector<FuncEntry> funcTable = vector<FuncEntry>();
+/*
+ * check func's compatability with previous ones
+ * if ok, if FuncDefn set paraList and insert them to idTable
+ *        insert funcEntry to funcTable for future check
+ */
+void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
+    if(t==DefnType) {
+        newScope();
+        funcName = name;
+    }
+    FuncEntry func = FuncEntry(name, t, p);
+    for(auto& it:funcTable){
+        if(it.funcName==name&&!isFuncParaSame(func,it)){
+            string errMsg = "conflicting types for '" + name + "'";
+            printDebugInfo(errMsg, locate);
+        }
+        else if(it.funcName==name&&isFuncParaSame(func,it)&&t==DefnType&&it.funcType==DefnType){
+            string errMsg = "redefinition of '" + name +"'";
+            printDebugInfo(errMsg, locate);
+        }
+        else{
+            funcTable.push_back(func);
+            // insert para idEntry for future use
+            if(t==DefnType){
+                for(auto para:func.paraList){
+                    insertParaEntry(para);
+                }
+            }
+        }
+    }
+}
+
+/*-----------------------------------------------
+ * id management
+ *-----------------------------------------------*/
+int idCounter = 0;
+string newId(){
+    string id = "T" + to_string(idCounter);
+    idCounter++;
+    return id;
+}
+
+IdEntry::IdEntry(string CName_,string EName_, IdType_ idType_, int scope_):CName(CName_),EName(EName_),idType(idType_),scope(scope_){};
+vector<IdEntry> idTable = vector<IdEntry>();
+/* 
+ * create a idEntry and insert to table
+ * else printDebugInfo
+ */
+void createIdEntry(string CName, IdType t, YYLTYPE locate){
+    for(auto it = idTable.rbegin();it!=idTable.rend();++it){
+        if(it->CName==CName&&it->scope==scope.currentScope){
+            // redefinition, stop creating
+            string errMsg = "redefinition of '" + CName + "'";
+            printDebugInfo(errMsg, locate);
+            return;
+        }
+    }
+    string EName = newId();
+    IdType id = IdType(CName, EName, t, scope.currentScope);
+    idTable.push_back(id);
+}
+void insertParaEntry(IdNode id){
+    idTable.push_back(id);
+}
+/* return EName of a CName
+ * if not found, return an empty string
+ */
+string getIdName(string CName){
+    string ret = string();
+    for(auto it = idTable.rbegin();it!=idTable.rend();++it){
+        if(it->CName==CName&&isScopeAlive(it->scope)){
+            ret = it->EName;
+            break;
+        }
+    }
+    return ret;
+}
+/*-----------------------------------------------
+ * temp management
+ *-----------------------------------------------*/
+int tempCounter = 0;
+string newTemp(){
+    string temp = "t" + to_string(tempCounter);
+    tempCounter++；
+    return temp;
+}
+
+/*-----------------------------------------------
+ * label management
+ *-----------------------------------------------*/
+int labelCounter = 0;
+string newLabel(){
+    string label = "l" + to_string(labelCounter);
+    labelCounter++;
+    return label;
+}

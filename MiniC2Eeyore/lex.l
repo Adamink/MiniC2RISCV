@@ -1,7 +1,8 @@
 %{
 #include "util.h"
-%}
+#define YY_USER_ACTION update_loc();
 %option noyywrap
+%option yylineno
 
 %x COMMENT
 int     -?{[0-9]+}+
@@ -35,7 +36,6 @@ blank    ([ \f\r\t\v]+)*
 "else"          {readToken(yytext);return(ELSE)}
 "while"         {readToken(yytext);return(WHILE);}
 "return"        {readToken(yytext);return(RETURN);}
-"main"          {readToken(yytext);return(MAIN);}
 "("             {readToken(yytext);return('(');}
 ")"             {readToken(yytext);return(')');}
 "["             {readToken(yytext);return('[');}

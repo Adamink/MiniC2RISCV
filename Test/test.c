@@ -1,5 +1,7 @@
 #include<stdio.h>
 int main(){
-    a = 2;
-    return 0;
+    int a;
+    if(1){
+        printf("ee");
+    }
 }
