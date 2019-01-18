@@ -25,12 +25,15 @@ extern void readToken(char*);
 
 extern int debug;
 extern int error;
+extern int warning;
 extern stringstream outputStream;
-extern stringstream debugStream;
 extern stringstream errorStream;
+extern stringstream warningStream;
+extern stringstream debugStream;
 extern void print(string);
-extern void printDebugInfo(string, YYLTYPE);
-extern void printError(string);
+extern void printErrorInfo(string, YYLTYPE);
+extern void printWarningInfo(string, YYLTYPE);
+extern void debugging(string);
 
 extern void print
 #endif

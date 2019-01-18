@@ -39,11 +39,17 @@ extern class FuncEntry{
         string funcName;
         FuncType funcType;
         vector<IdEntry> paraList;
+        /* FuncEntry to init when decl and defn */
         FuncEntry(string,FuncType, ParaListNode*);
+        /* FuncEntry to compare when called */
+        FuncEntry(string, ExprListNode*);
 }
-bool isFuncParaSame(FuncEntry& a, FuncEntry& b);
-vector<FuncEntry> funcTable;
+extern int cmpFuncParaNum(FuncEntry& a, FuncEntry& b);
+extern bool isFuncParaSame(FuncEntry& a, FuncEntry& b);
+extern vector<FuncEntry> funcTable;
 extern void createFuncEntry(string, FuncType, ParaListNode*, YYLTYPE);
+extern FuncEntry* findFuncEntry(string name, YYLTYPE locate);
+
 /*-----------------------------------------------
  * id management
  *-----------------------------------------------*/
@@ -58,10 +64,10 @@ extern class IdEntry{
     IdEntry(string, string, IdType,int);
 };
 
-vector<IdEntry> idTable;
+extern vector<IdEntry> idTable;
 extern void createIdEntry(string, IdType,YYLTYPE);
 extern void insertParaEntry(IdNode id);
-extern string getIdName(string);
+extern string getIdName(string, YYLTYPE locate);
 
 /*-----------------------------------------------
  * temp management

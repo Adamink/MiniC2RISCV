@@ -49,19 +49,25 @@ void readToken(char* s){
 }
 
 
-int debug = 0;
 int error = 0;
+int warning = 0;
+int debug = 0;
+
+stringstream outputStream = stringstream();
+stringstream errorStream = stringstream();
+stringstream warningStream = stringstream();
+stringstream debugStream = stringstream();
 
 void print(string s){
     outputStream << s;
 }
 
-void printDebugInfo(string errMsg, YYLTYPE l){
-    debug = 1;
+void printErrorInfo(string errMsg, YYLTYPE l){
+    error = 1;
 
     string locate = string();
     string line = string();
-    string debugInfo = string();
+    string errInfo = string();
 
     if(inFunc())
         envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
@@ -70,12 +76,28 @@ void printDebugInfo(string errMsg, YYLTYPE l){
     errMsg = inputFileName + ":" + locate + " error: " + errMsg + "\n";
     line = linesFromSource[l.first_line];
 
-    debugInfo = envMsg + errMsg + line;
-    debugStream << debugInfo;      
+    errInfo = envMsg + errMsg + line;
+    errorStream << errInfo;      
 }
+void printWarningInfo(string wrnMsg, YYLTYPE l){
+    warning = 1;
 
-void printError(string s){
-    errorStream << s;
+    string locate = string();
+    string line = string();
+    string warningInfo = string();
+
+    if(inFunc())
+        envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
+
+    locate = to_string(l.first_line) + ":" + to_string(l.first_column) + ":";
+    wrnMsg = inputFileName + ":" + locate + " warning: " + wrnMsg + "\n";
+    line = linesFromSource[l.first_line];
+
+    wrnInfo = envMsg + wrnMsg + line;
+    warningStream << wrnInfo;
+}
+void debugging(string s){
+    debugStream << s;
 }
 /*-----------------------------------------------
  * main

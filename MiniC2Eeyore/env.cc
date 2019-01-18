@@ -77,7 +77,35 @@ FuncEntry::FuncEntry(string name, FuncType t, ParaListNode* p){
             }
         }
     }
-
+FuncEntry::FuncEntry(string name, ExprListNode* p){
+    funcName = name;
+    funcType = CallType;
+    // same as above except for type of nodes
+    if(p!=NULL){
+        stack<Node*> dfsStack = stack<Node*>();
+        int l = p->children.size();
+        for(int i = l-1;i>=0;i--)
+            dfsStack.push(p->children[i]);
+        while(!dfsStack.empty()){
+            Node* top = dfsStack.top();
+            dfsStack.pop();
+            if(top->nodeType!=ExprNodeType){
+                vector<Node*> topchildren = top->children();
+                int l = topchildren.size();
+                for(int i = l-1;i>=0;i--)
+                    dfsStack.push(topchildren[i]);
+            }
+            else{
+                ExprNode* expr = (ExprNode*)top;
+                IdEntry id = IdEntry("", expr->valueID, IntType,scope.currentScope);
+                paraList.push_back(id);    
+            }
+        }
+    }
+}
+}
+int cmpFuncParaNum(FuncEntry& a, FuncEntry& b){
+    return a.paraList.size() - b.paraList.size();
 }
 bool isFuncParaSame(FuncEntry& a, FuncEntry& b){
     int la = a.paraList.size();
@@ -92,8 +120,8 @@ bool isFuncParaSame(FuncEntry& a, FuncEntry& b){
 vector<FuncEntry> funcTable = vector<FuncEntry>();
 /*
  * check func's compatability with previous ones
- * if ok, if FuncDefn set paraList and insert them to idTable
- *        insert funcEntry to funcTable for future check
+ * if ok, insert funcEntry to funcTable for future check
+ * if also FuncDefn insert paraList to idTable and newScope()
  */
 void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
     if(t==DefnType) {
@@ -104,11 +132,11 @@ void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
     for(auto& it:funcTable){
         if(it.funcName==name&&!isFuncParaSame(func,it)){
             string errMsg = "conflicting types for '" + name + "'";
-            printDebugInfo(errMsg, locate);
+            printErrorInfo(errMsg, locate);
         }
         else if(it.funcName==name&&isFuncParaSame(func,it)&&t==DefnType&&it.funcType==DefnType){
             string errMsg = "redefinition of '" + name +"'";
-            printDebugInfo(errMsg, locate);
+            printErrorInfo(errMsg, locate);
         }
         else{
             funcTable.push_back(func);
@@ -122,6 +150,16 @@ void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
     }
 }
 
+FuncEntry* findFuncEntry(string name, YYLTYPE locate){
+    for(auto it = funcTable.begin();it!=funcTable.end();++it){
+        if(it->funcName==name)
+            return it;  // ?
+    }
+    // name not found
+    string wrnMsg = "implicit declaration of function '" + name + "'";
+    printWarningInfo(wrnMsg, locate);
+    return NULL;
+}
 /*-----------------------------------------------
  * id management
  *-----------------------------------------------*/
@@ -136,14 +174,14 @@ IdEntry::IdEntry(string CName_,string EName_, IdType_ idType_, int scope_):CName
 vector<IdEntry> idTable = vector<IdEntry>();
 /* 
  * create a idEntry and insert to table
- * else printDebugInfo
+ * else printErrorInfo
  */
 void createIdEntry(string CName, IdType t, YYLTYPE locate){
     for(auto it = idTable.rbegin();it!=idTable.rend();++it){
         if(it->CName==CName&&it->scope==scope.currentScope){
             // redefinition, stop creating
             string errMsg = "redefinition of '" + CName + "'";
-            printDebugInfo(errMsg, locate);
+            printErrorInfo(errMsg, locate);
             return;
         }
     }
@@ -154,18 +192,21 @@ void createIdEntry(string CName, IdType t, YYLTYPE locate){
 void insertParaEntry(IdNode id){
     idTable.push_back(id);
 }
-/* return EName of a CName
- * if not found, return an empty string
+/* 
+ * return EName of a CName
+ * if not found, return an empty string and printErrorInfo
  */
-string getIdName(string CName){
-    string ret = string();
+string getIdName(string CName, YYLTYPE locate){
     for(auto it = idTable.rbegin();it!=idTable.rend();++it){
         if(it->CName==CName&&isScopeAlive(it->scope)){
-            ret = it->EName;
+            return = it->EName;
             break;
         }
     }
-    return ret;
+    // not found
+    string errMsg ="'" + CName + "' was not declared in this scope";
+    printErrorInfo(errMsg, locate);
+    return string();
 }
 /*-----------------------------------------------
  * temp management

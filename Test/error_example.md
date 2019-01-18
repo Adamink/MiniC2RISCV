@@ -1,7 +1,6 @@
 ## 使用未定义的变量
 
 ```c
-#include<stdio.h>
 int main(){
     a = 2;
     return 0;
@@ -10,10 +9,40 @@ int main(){
 
 ```txt
 test.c: In function ‘int main()’:
-test.c:3:5: error: ‘a’ was not declared in this scope
+test.c:2:5: error: ‘a’ was not declared in this scope
      a = 2;
      ^
 ```
+
+## 变量定义语法错误
+
+```c
+int main(){
+    int a[;
+    return 0;
+}
+```
+
+Bug Report:
+
+```tx
+
+```
+
+```c
+int main(){
+    int a[];
+    return 0;
+}
+```
+
+Bug Report:
+
+```txt
+
+```
+
+
 
 ## 变量重名
 
@@ -84,7 +113,95 @@ test.c:2:6: note: previous definition of ‘f’ was here
 
 ## 参数传入数量错误
 
+```c
+#include<stdio.h>
+void f(int a, int b){
+    a+b;
+}
+int main(){
+    int a ;
+    f(a);
+    return 0;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:7:5: error: too few arguments to function ‘f’
+     f(a);
+     ^
+test.c:2:6: note: declared here
+ void f(int a, int b){
+      ^
+```
+
+```c
+#include<stdio.h>
+void f(int a, int b){
+    a+b;
+}
+int main(){
+    int a ;
+    f(a,a,a);
+    return 0;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:7:5: error: too many arguments to function ‘f’
+     f(a,a,a);
+     ^
+test.c:2:6: note: declared here
+ void f(int a, int b){
+      ^
+```
+
+## 参数传入类型错误
+
+```c
+#include<stdio.h>
+typedef struct{
+    double a;
+    int b;
+} s;
+void f(s a){
+}
+int main(){
+    double a = 0.;
+    f(a);
+    return 0;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:11:7: error: incompatible type for argument 1 of ‘f’
+     f(a);
+       ^
+test.c:6:6: note: expected ‘st {aka struct <anonymous>}’ but argument is of type ‘double’
+ void f(st s){
+      ^
+```
+
 ## 调用未声明的函数
+
+```c
+#include<stdio.h>
+int main(){
+    f();
+    return 0;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:3:5: warning: implicit declaration of function ‘f’ [-Wimplicit-function-declaration]
+     f();
+     ^
+```
+
+
 
 ## 变量和关键字冲突?
 
@@ -131,5 +248,39 @@ test.c:5:6: error: redefinition of ‘f’
 test.c:2:6: note: previous definition of ‘f’ was here
  void f(int a,int b){
       ^
+```
+
+## 零除
+
+```c
+#include<stdio.h>
+int main(){
+    int a ;
+    a = 1 / 0;
+    return a;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:4:11: warning: division by zero [-Wdiv-by-zero]
+     a = 1 / 0;
+           ^
+```
+
+```c
+#include<stdio.h>
+int main(){
+    int a ;
+    a = 1 % 0;
+    return 0;
+}
+```
+
+```txt
+test.c: In function ‘main’:
+test.c:4:11: warning: division by zero [-Wdiv-by-zero]
+     a = 1 % 0;
+           ^
 ```
 
