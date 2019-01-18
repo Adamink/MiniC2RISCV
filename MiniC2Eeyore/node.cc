@@ -27,9 +27,9 @@ void Node::printCodeRecursively(){
         children[0]->printCodeRecursively();
     }
     print(codeMiddle.str());
-    auto it = child.begin();
+    auto it = children.begin();
     ++it;
-    for(;it!=child.end();++it){
+    for(;it!=children.end();++it){
         (*it)->printCodeRecursively();
     }
     print(codeAfter.str());

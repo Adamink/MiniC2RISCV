@@ -8,8 +8,7 @@ using namespace std;
 %}
 /* generate include-file with symbols and types */
 %locations
-%defines
-%define api.location.file "parse.h"
+//%define api.location.file "parse.h"
 // 
 
 /* a more advanced semantic type */
@@ -181,14 +180,6 @@ FuncDecl:
         Node* ret = new FuncNode();
         string name = string($2);
         createFuncEntry(name, DeclType, $4, @2);
-        $$ = ret;
-    }
-    |
-    TYPE ID '(' ')' ';'
-    {
-        Node* ret = new FuncNode();
-        string name = string($2);
-        createFuncEntry(name, DeclType, NULL, @2);
         $$ = ret;
     }
     |

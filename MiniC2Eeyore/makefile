@@ -6,11 +6,13 @@ eeyore: $(OBJS)
 
 # rules
 %.cc: %.y
-	bison -o $@ $<  --defines=parse.h -W
+	bison -o $@ $< --verbose -W
 
 %.cc: %.l
 	flex -o $@ $<
 
 %.o: %.cc $(HEADERS)
-	g++ -c o $@ $<
+	g++ -c -o $@ $<
 
+clear: 
+	rm *.o
