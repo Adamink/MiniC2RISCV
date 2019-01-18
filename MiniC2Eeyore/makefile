@@ -6,7 +6,7 @@ eeyore: $(OBJS)
 
 # rules
 %.cc: %.y
-	bison -o $@ $< -W
+	bison -o $@ $<  --defines=parse.h -W
 
 %.cc: %.l
 	flex -o $@ $<

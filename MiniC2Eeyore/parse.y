@@ -7,8 +7,10 @@ using namespace std;
 #define YYERROR_VERBOSE 1
 %}
 /* generate include-file with symbols and types */
-%define api.location.file "parse.y"
-// %locations
+%locations
+%defines
+%define api.location.file "parse.h"
+// 
 
 /* a more advanced semantic type */
 %union {
@@ -20,7 +22,7 @@ using namespace std;
  EQUAL NOTEQUAL ASSIGN IF ELSE WHILE RETURN MAIN DOUBLEPLUS DOUBLEMINUS
 %token <sval> '(' ')' '[' ']' '{' '}' ';' ',' ID
 %type <nval> Program GlobalList FuncDecl VarDefn FuncDefn Blocks Block 
-Statements Statement ParaList ParaDecls ParaDecl ExprList Expressions Expression
+ Statement ParaList ParaDecls ParaDecl ExprList Expressions Expression
 
 %nonassoc IF
 %nonassoc ELSE
