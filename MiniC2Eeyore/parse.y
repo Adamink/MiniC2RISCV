@@ -131,6 +131,7 @@ ParaDecl:
         Node* ret = new ParaNode($2,ArrayType);
         $$ = ret;
     }
+    |
     TYPE
     {
         Node* ret = new ParaNode(IntType);
@@ -162,7 +163,7 @@ ParaDecls:
     ;
 // empty or one or more ParaDecl, seprated by ','
 ParaList:
-    ParaDecls:
+    ParaDecls
     {
         $$ = $1;
     }
@@ -180,6 +181,7 @@ FuncDecl:
         createFuncEntry(name, DeclType, $4, @2);
         $$ = ret;
     }
+    |
     TYPE ID '(' ')' ';'
     {
         Node* ret = new FuncNode();
@@ -187,6 +189,7 @@ FuncDecl:
         createFuncEntry(name, DeclType, NULL, @2);
         $$ = ret;
     }
+    |
     error ';'
     {
         printErrorInfo("wrong function declare method", @2);
@@ -214,8 +217,7 @@ FuncDefn:
         // add return automatically
         int hasReturn = checkReturn(ret);
         if(!hasReturn)
-            codeAfter = "return\n" + "end f_" + $2 + "
-            \n";
+            codeAfter = "return\n" + "end f_" + $2 + "\n";
         else
             codeAfter = "end f_" + $2 +"\n";
         ret->appendCodeBefore(codeBefore);
@@ -242,7 +244,7 @@ Block:
         $$ = $3;
     }
     |
-    IF '(' Expresion ')' Block
+    IF '(' Expression ')' Block
     {
         Node* ret = new OtherNode();
         ret->addChild($3);
@@ -253,9 +255,9 @@ Block:
         ret->appendCodeMiddle(jmpCode);
         ret->appendCodeAfter(l + ":\n");
         $$ = ret;
-    } % prec IF
+    } %prec IF
     |
-    IF '(' Expresion ')' Block ELSE Block
+    IF '(' Expression ')' Block ELSE Block
     {
         Node* midNode = new OtherNode();
         midNode.addChild($5);
@@ -274,7 +276,7 @@ Block:
         midNode->appendCodeAfter(l2+":\n");
     } %prec ELSE
     |
-    WHILE '(' BoolExpr ')' Block
+    WHILE '(' Expression ')' Block
     {
         Node* ret = new Node();
         ret->addChild($3);
@@ -409,7 +411,6 @@ Expression:
     {
         ExprNode* ret = new ExprNode();
         ret->addChild($1);
-        ret->addChild($3);
         string tmp = newTemp();
         string code = "var " + tmp + "\n" + tmp + " = -" +
          ((ExprNode*)$2)->valueID + "\n";
@@ -465,7 +466,7 @@ Expression:
         }
     }
     |
-    Expresion AND Expresion
+    Expression AND Expression
     {
         ExprNode* ret = new ExprNode();
         ret->addChild($1);
@@ -528,6 +529,7 @@ Expression:
         ret->valueID = tmp;
         $$ = (Node*)ret;  
     }
+    |
     Expression EQUAL Expression
     {
         ExprNode* ret = new ExprNode();
@@ -541,6 +543,7 @@ Expression:
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
     }
+    |
     Expression NOTEQUAL Expression
     {
         ExprNode* ret = new ExprNode();
