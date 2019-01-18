@@ -18,7 +18,7 @@ using namespace std;
 }
 %token <ival> TYPE INTEGER PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS GREATER EQUAL NOTEQUAL ASSIGN IF ELSE WHILE RETURN MAIN DOUBLEPLUS DOUBLEMINUS
 %token <sval> '(' ')' '[' ']' '{' '}' ';' ',' ID
-%type <nval> VarDefn FuncDefn FuncDecl Statement Blocks Program ParaList ParaDecl Expression Block GlobalList ExprList BoolExpr
+%type <nval> Program GlobalList FuncDecl VarDefn FuncDefn Blocks Block Statements Statement ParaList ParaDecls ParaDecl ExprList Expressions Expression  
 
 %nonassoc IF
 %nonassoc ELSE
@@ -238,7 +238,7 @@ Block:
         $$ = $3;
     }
     |
-    IF '(' BoolExpr ')' Block
+    IF '(' Expresion ')' Block
     {
         Node* ret = new OtherNode();
         ret->addChild($3);
@@ -250,7 +250,7 @@ Block:
         $$ = ret;
     } % prec IF
     |
-    IF '(' BoolExpr ')' Block ELSE Block
+    IF '(' Expresion ')' Block ELSE Block
     {
         Node* midNode = new OtherNode();
         midNode.addChild($5);

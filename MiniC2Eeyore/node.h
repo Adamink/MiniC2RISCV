@@ -52,4 +52,9 @@ class FuncNode:public Node{
     public:
         FuncNode();
 };
+class ExprNode:public Node{
+    public:
+        string valueID;
+        ExprNode();
+};
 #endif

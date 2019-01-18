@@ -70,3 +70,8 @@ ParaListNode::ParaListNode():Node(ParaListNodeType){};
  * class FuncNode
  *-----------------------------------------------*/
 FuncNode::FuncNode():Node(FuncNodeType){};
+
+/*-----------------------------------------------
+ * class ExprNode
+ *-----------------------------------------------*/
+ExprNode::ExprNode():Node(ExprNodeType){};

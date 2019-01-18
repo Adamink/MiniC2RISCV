@@ -2,5 +2,5 @@
 #define TYPE_H
 enum IdType{IntType, ArrayType};
 enum FuncType{DeclType, DefnType, CallType};
-enum NodeType{RootNodeType,OtherNodeType,EmptyNodeType,StatementNodeType,ParaNodeType,ParaListNodeType,FuncNodeType};
+enum NodeType{RootNodeType,OtherNodeType,EmptyNodeType,StatementNodeType,ParaNodeType,ParaListNodeType,FuncNodeType,ExprNodeType};
 #endif

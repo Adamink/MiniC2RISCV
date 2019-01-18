@@ -99,12 +99,46 @@ void printWarningInfo(string wrnMsg, YYLTYPE l){
 void debugging(string s){
     debugStream << s;
 }
+static string separateLine(string msg){
+    int beforeLen = 20;
+    int dstLen = 60;
+    int msgLen = msg.length() + 2;
+    int afterLen = dstLen - beforeLen - msgLen;
+    stringstream line = stringstream();
+    line << endl;
+    for(int i = 0;i<beforeLen;i++){
+        line << "=";
+    }
+    line << " " << msg << " ";
+    for(int i = 0;i<afterLen;i++){
+        line << "=";
+    }
+    line << endl;
+    return line.str();
+}
+void printFinal(){
+    if(debug){
+        cerr << separateLine("Debug Info");
+        cerr << debugStream.str();
+    }
+    if(error){
+        cerr << separateLine("Error Info");
+        cerr << errorStream.str();
+    }
+    else{
+        cerr << separateLine("Warning Info");
+        cerr << warningStream.str();
+        cout << outputStream.str();
+    }
+
+}
 /*-----------------------------------------------
  * main
  *-----------------------------------------------*/
 int main(int argc, char *argv[]){
-    char fileName[20] = "file.log";
+    char fileName[20] = "eeyore.log";
     setInput(fileName);
     yyin = open(fileName,"r");
     yyparse();
+    printFinal();
 }
