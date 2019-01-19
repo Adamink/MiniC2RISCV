@@ -145,7 +145,8 @@ void printWarningInfo(string wrnMsg, YYLTYPE l){
     warningStream << wrnInfo;
 }
 void debugging(string s){
-    cerr << s;
+    if(debug)
+        cerr << s;
 }
 
 void printFinal(){
@@ -168,7 +169,7 @@ int main(int argc, char *argv[]){
     char fileName[20] = "eeyore.log";
     setInput(fileName);
     yyin = fopen(fileName,"r");
-    cerr << separateLine("Debugging Info");
+    debugging(separateLine("Debugging Info"));
     yyparse();
     printFinal();
 }

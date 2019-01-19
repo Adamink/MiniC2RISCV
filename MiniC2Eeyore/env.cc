@@ -81,6 +81,11 @@ FuncEntry::FuncEntry(string name, FuncType t, ParaListNode* p){
             }
         }
     }
+    /*
+    debugging("A FuncEntry is created\n");
+    for(auto& para:paraList){
+        debugging(para.CName + "\n");
+    }*/
 }
 
 FuncEntry::FuncEntry(string name, ExprListNode* p){
@@ -170,16 +175,16 @@ void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
             string errMsg = "redefinition of '" + name +"'";
             printErrorInfo(errMsg, locate);
         }
-        else{
-            funcTable.push_back(func);
-            // insert para idEntry for future use
-            if(t==DefnType){
-                for(auto para:func.paraList){
-                    insertParaEntry(para);
-                }
-            }
+    }
+    
+    funcTable.push_back(func);
+    // insert para idEntry for future use
+    if(t==DefnType){
+        for(auto para:func.paraList){
+            insertParaEntry(para);
         }
     }
+        
 }
 
 FuncEntry* findFuncEntry(string name, YYLTYPE locate){

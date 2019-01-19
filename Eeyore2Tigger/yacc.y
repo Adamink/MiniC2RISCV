@@ -13,8 +13,8 @@
 #include "node.h"
 using namespace std;
 
-int yylex();
-int yyparse();
+extern int yylex();
+extern int yyparse();
 void yyerror(char *s){
 	cerr<<s<<endl;
 }
@@ -33,10 +33,12 @@ extern "C"{
 };
 
 %token <ival> INTEGER
-%token <sval> FUNC LABEL ID PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS GREATER EQUAL NOTEQUAL ASSIGN LBRAC RBRAC IF GOTO CALL PARAM END RETURN VAR COLON
+%token <sval> FUNC LABEL ID PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS
+ GREATER EQUAL NOTEQUAL ASSIGN LBRAC RBRAC IF GOTO CALL PARAM END RETURN VAR COLON
 
 %type <sval> Op2 Op1 LogicalOp
-%type <nval> LocalDeclaration FunctionDecl RightValue Expression GlobalList LocalList GlobalDeclaration Goal ParamList
+%type <nval> LocalDeclaration FunctionDecl RightValue Expression GlobalList
+ LocalList GlobalDeclaration Goal ParamList
 
 %% 
 

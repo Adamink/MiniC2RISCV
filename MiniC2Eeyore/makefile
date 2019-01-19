@@ -19,6 +19,10 @@ test0: eeyore
 	./$< < ${TESTFOLDER}/01_main.c > ${TESTFOLDER}/01_main.e
 	@cat ${TESTFOLDER}/01_main.e
 
+test5: eeyore
+	./$< < ${TESTFOLDER}/05_funcdefn.c > ${TESTFOLDER}/05_funcdefn.e
+	@cat ${TESTFOLDER}/05_funcdefn.e
+
 test6: eeyore
 	./$< < ${TESTFOLDER}/06_add.c > ${TESTFOLDER}/06_add.e
 	@cat ${TESTFOLDER}/06_add.e

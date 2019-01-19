@@ -153,7 +153,7 @@ ParaDecls:
     {
         Node* ret = new ParaListNode();
         ret->addChild($1);
-        $$ = $1;
+        $$ = ret;
     }
     |
     ParaDecl ',' ParaDecls
@@ -204,7 +204,7 @@ FuncDefn:
     }
     Blocks '}' 
     {
-        debugging("finish parsing block\n");
+        debugging("reducing blocks to FuncDefn\n");
         Node* ret = new FuncNode();
         ret->addChild($8);
         int paraNum = getParaNum((ParaListNode*)$4);
@@ -232,12 +232,14 @@ Block:
         Node* ret = new OtherNode();
         ret->addChild($1);
         $$ = ret;
+        debugging("reducing statement to block\n");
     }
     |
     '{' {newScope();} Blocks '}'
     {
         endScope();
         $$ = $3;
+        debugging("shouln't go here\n");
     }
     |
     IF '(' Expression ')' Block
@@ -295,6 +297,7 @@ Blocks:
         ret->addChild($1);
         ret->addChild($2);
         $$ = ret;
+        debugging("reducing to blocks\n");
     }
     |
     /* empty */

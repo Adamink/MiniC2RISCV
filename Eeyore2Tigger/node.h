@@ -9,7 +9,8 @@
 
 using namespace std;
 
-enum NodeType{RootNodeType, GlobalDeclareNodeType, FuncNodeType, ExprNodeType, OtherNodeType, EmptyNodeType, IdNodeType, BlockNodeType};
+enum NodeType{RootNodeType, GlobalDeclareNodeType, FuncNodeType, 
+ExprNodeType, OtherNodeType, EmptyNodeType, IdNodeType, BlockNodeType};
 enum ExprType{Op2Type, Op1Type, NoOpType, StoreArrayType, VisitArrayType, 
 IfBranchType, GotoType, LabelType, CallType, ReturnType,LocalDeclareType};
 
