@@ -57,11 +57,15 @@ GlobalList:
         $$ = ret;
     }
     |
-    FuncDefn GlobalList
+    FuncDefn 
+    {
+        debugging("reducin to FuncDefn\n");
+    }
+    GlobalList
     {
         Node* ret = new OtherNode();
         ret->addChild($1);
-        ret->addChild($2);
+        ret->addChild($3);
         $$ = ret;
     }
     |
