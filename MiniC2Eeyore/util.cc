@@ -29,7 +29,7 @@ void update_loc(){
 /*-----------------------------------------------
  * util
  *-----------------------------------------------*/
-static int maxLines = 1024;
+static const int maxLines = 1024;
 string linesFromSource[maxLines];
 /* copy input to file and set linesFromSource */
 void setInput(char* fileName){
@@ -40,12 +40,12 @@ void setInput(char* fileName){
         linesFromSource[i] = line;
         f << line;
     }
-    fstream.close();
+    f.close();
 }
 
 /* read a new token and remember a line */
 void readToken(char* s){
-    printError(string(s));
+    debugging(string(s));
 }
 
 
@@ -68,7 +68,7 @@ void printErrorInfo(string errMsg, YYLTYPE l){
     string locate = string();
     string line = string();
     string errInfo = string();
-
+    string envMsg = string();
     if(inFunc())
         envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
 
@@ -84,8 +84,9 @@ void printWarningInfo(string wrnMsg, YYLTYPE l){
 
     string locate = string();
     string line = string();
-    string warningInfo = string();
-
+    string wrnInfo = string();
+    string envMsg = string();
+    
     if(inFunc())
         envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
 
@@ -138,7 +139,7 @@ void printFinal(){
 int main(int argc, char *argv[]){
     char fileName[20] = "eeyore.log";
     setInput(fileName);
-    yyin = open(fileName,"r");
+    yyin = fopen(fileName,"r");
     yyparse();
     printFinal();
 }
