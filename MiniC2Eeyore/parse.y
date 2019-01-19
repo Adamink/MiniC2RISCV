@@ -3,6 +3,7 @@
 #include "node.h"
 #include "type.h"
 #include "env.h"
+
 using namespace std;
 #define YYERROR_VERBOSE 1
 %}
@@ -365,6 +366,7 @@ Expression:
     INTEGER
     {
         ExprNode* ret = new ExprNode();
+        ret->isInteger = true;
         ret->valueID = to_string($1);
         $$ = (Node*)ret;
     }
@@ -373,6 +375,7 @@ Expression:
     {
         ExprNode* ret = new ExprNode();
         string name = string($1);
+        ret->isID = true;
         ret->valueID = getIdName(name, @1);
         $$ = (Node*)ret;
     }
@@ -645,15 +648,23 @@ Expression:
         string CName = string($1);
         string EName = getIdName(CName,@1);
         string temp1 = newTemp();
-        string temp2 = newTemp();
+        // string temp2 = newTemp();
         stringstream code = stringstream();
-        code << "var " << temp1 << endl;
-        code << temp1 << " = 4 *" << ((ExprNode*)$3)->valueID <<endl;
-        code << "var " << temp2 << endl;
-        code << temp2 << " = " << EName << ((ExprNode*)$6)->valueID << endl;
-        ret->appendCode(code.str());
-        ret->valueID = temp2;
-        
+        ExprNode* expr = (ExprNode*)$3;
+        if(expr->isInteger){
+            int bias = 4 * stoi(expr->valueID);
+            code << EName << "[" << to_string(bias) << "] = " << ((ExprNode*)$6)->valueID << endl;
+        }
+        else{
+            code << "var " << temp1 << endl;
+            code << temp1 << " = 4 * " << ((ExprNode*)$3)->valueID <<endl;
+            // code << "var " << temp2 << endl;
+            code << EName << "[" << temp1 << "] = " << ((ExprNode*)$6)->valueID << endl;
+        }
+
+        ret->appendCodeAfter(code.str());
+        // ret->valueID = temp2;
+        // ?
     }
     |
     DOUBLEPLUS ID

@@ -54,6 +54,8 @@ class FuncNode:public Node{
 };
 class ExprNode:public Node{
     public:
+        bool isInteger;
+        bool isID;
         string valueID;
         ExprNode();
 };

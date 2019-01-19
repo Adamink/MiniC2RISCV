@@ -26,9 +26,13 @@ test11: eeyore
 	./$< < ${TESTFOLDER}/11_if_else.c > ${TESTFOLDER}/11_if_else.e
 	@cat ${TESTFOLDER}/11_if_else.e
 
-test16:eeyore
+test16: eeyore
 	./$< < ${TESTFOLDER}/16_equal.c > ${TESTFOLDER}/16_equal.e
 	@cat ${TESTFOLDER}/16_equal.e	
+
+test21: eeyore
+	./$< < ${TESTFOLDER}/21_arr_sum.c > ${TESTFOLDER}/21_arr_sum.e
+	@cat ${TESTFOLDER}/21_arr_sum.e	
 	
 clear: 
 	rm eeyore *.o parse.cc lex.cc

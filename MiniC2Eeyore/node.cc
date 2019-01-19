@@ -78,7 +78,10 @@ FuncNode::FuncNode():Node(FuncNodeType){};
 /*-----------------------------------------------
  * class ExprNode
  *-----------------------------------------------*/
-ExprNode::ExprNode():Node(ExprNodeType){};
+ExprNode::ExprNode():Node(ExprNodeType){
+    isInteger = false;
+    valueID = string();
+};
 
 /*-----------------------------------------------
  * class ExprListNode
