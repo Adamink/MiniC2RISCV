@@ -361,7 +361,7 @@ LogicalOp:
 		EQUAL | NOTEQUAL | LESS | GREATER | AND | OR
 		;
 %%
-#include "lex.yy.c"
+#include "lex.cc"
 int main(int argc, char* argv[]){
     yyparse();
 }
