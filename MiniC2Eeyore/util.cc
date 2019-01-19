@@ -1,5 +1,6 @@
 #include "util.h"
 #include "env.h"
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -36,13 +37,28 @@ void setInput(char* fileName){
     fstream f;
     f.open(fileName, fstream::in | fstream::out | fstream::trunc);
     string line;
+    stringstream lineBuffer = stringstream();
     int i = 1;
+    char c;
+    while((c = getchar())!=EOF){
+        if(c!='\t')
+            lineBuffer << c;
+        else
+            lineBuffer << "    "; // replace '\t' with 4 spaces
+        if(c=='\n'){
+            linesFromSource[i] = lineBuffer.str();
+            i++;
+            f << lineBuffer.str();
+            lineBuffer.clear();
+        }
+    }
+    /*
     while(getline(cin, line)){
         linesFromSource[i] = line + "\n";
         i++;
         f << line << endl;
     }
-    f.close();
+    f.close();*/
 }
 
 /* read a new token and remember a line */
