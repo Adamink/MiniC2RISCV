@@ -1,4 +1,5 @@
 #include "env.h"
+#include "util.h"
 
 #include <stack>
 using namespace std;
@@ -8,8 +9,9 @@ using namespace std;
  *-----------------------------------------------*/
 string inputFileName = string();
 string funcName = string();
+bool hasReturn = false;
 bool inFunc(){
-    return Scope.currentScope > 0;
+    return scope.currentScope > 0;
 }
 /*-----------------------------------------------
  * scope management
@@ -37,13 +39,13 @@ void Scope::endScope(){
 }
 Scope scope = Scope();
 void newScope(){
-    score.newScope();
+    scope.newScope();
 }
 void endScope(){
-    score.endScope();
+    scope.endScope();
 }
 bool isScopeAlive(int s){
-    return score.isScopeAlive(s);
+    return scope.isScopeAlive(s);
 }
 
 /*-----------------------------------------------
@@ -55,7 +57,7 @@ FuncEntry::FuncEntry(string name, FuncType t, ParaListNode* p){
     int paraCounter = 0;
     // deep-first traverse node p to get all para in order
     // allocate para name and store in paraList
-    if(p!NULL){
+    if(p!=NULL){
         stack<Node*> dfsStack = stack<Node*>();
         int l = p->children.size();
         for(int i = l-1;i>=0;i--)
@@ -64,20 +66,23 @@ FuncEntry::FuncEntry(string name, FuncType t, ParaListNode* p){
             Node* top = dfsStack.top();
             dfsStack.pop();
             if(top->nodeType!=ParaNodeType){
-                vector<Node*> topchildren = top->children();
+                vector<Node*> topchildren = top->children;
                 int l = topchildren.size();
                 for(int i = l-1;i>=0;i--)
                     dfsStack.push(topchildren[i]);
             }
             else{
                 ParaNode* para = (ParaNode*)top;
-                EName = "p" + to_string(paraCounter);
+                string EName = "p" + to_string(paraCounter);
                 paraCounter++;
-                IdEntry id = IdEntry(para->CName, EName,para->idType,scope.currentScope);
+                IdEntry id = IdEntry(para->idName, 
+                EName,para->idType,scope.currentScope);
                 paraList.push_back(id);    
             }
         }
     }
+}
+
 FuncEntry::FuncEntry(string name, ExprListNode* p){
     funcName = name;
     funcType = CallType;
@@ -91,7 +96,7 @@ FuncEntry::FuncEntry(string name, ExprListNode* p){
             Node* top = dfsStack.top();
             dfsStack.pop();
             if(top->nodeType!=ExprNodeType){
-                vector<Node*> topchildren = top->children();
+                vector<Node*> topchildren = top->children;
                 int l = topchildren.size();
                 for(int i = l-1;i>=0;i--)
                     dfsStack.push(topchildren[i]);
@@ -104,6 +109,32 @@ FuncEntry::FuncEntry(string name, ExprListNode* p){
         }
     }
 }
+void exitFunc(){
+    endScope();
+    funcName = string();    
+    hasReturn = false;
+}
+int getParaNum(ParaListNode* p){
+    int paraCounter = 0;
+    if(p!=NULL){
+        stack<Node*> dfsStack = stack<Node*>();
+        int l = p->children.size();
+        for(int i = l-1;i>=0;i--)
+            dfsStack.push(p->children[i]);
+        while(!dfsStack.empty()){
+            Node* top = dfsStack.top();
+            dfsStack.pop();
+            if(top->nodeType!=ParaNodeType){
+                vector<Node*> topchildren = top->children;
+                int l = topchildren.size();
+                for(int i = l-1;i>=0;i--)
+                    dfsStack.push(topchildren[i]);
+            }
+            else{
+                paraCounter++;
+            }
+        }
+    }
 }
 int cmpFuncParaNum(FuncEntry& a, FuncEntry& b){
     return a.paraList.size() - b.paraList.size();
@@ -154,7 +185,7 @@ void createFuncEntry(string name, FuncType t, ParaListNode* p, YYLTYPE locate){
 FuncEntry* findFuncEntry(string name, YYLTYPE locate){
     for(auto it = funcTable.begin();it!=funcTable.end();++it){
         if(it->funcName==name)
-            return it;  // ?
+            return &(*it);  // ?
     }
     // name not found
     string wrnMsg = "implicit declaration of function '" + name + "'";
@@ -171,7 +202,7 @@ string newId(){
     return id;
 }
 
-IdEntry::IdEntry(string CName_,string EName_, IdType_ idType_, int scope_):CName(CName_),EName(EName_),idType(idType_),scope(scope_){};
+IdEntry::IdEntry(string CName_,string EName_, IdType idType_, int scope_):CName(CName_),EName(EName_),idType(idType_),scope(scope_){};
 vector<IdEntry> idTable = vector<IdEntry>();
 /* 
  * create a idEntry and insert to table
@@ -187,10 +218,10 @@ void createIdEntry(string CName, IdType t, YYLTYPE locate){
         }
     }
     string EName = newId();
-    IdType id = IdType(CName, EName, t, scope.currentScope);
+    IdEntry id = IdEntry(CName, EName, t, scope.currentScope);
     idTable.push_back(id);
 }
-void insertParaEntry(IdNode id){
+void insertParaEntry(IdEntry id){
     idTable.push_back(id);
 }
 /* 
@@ -200,8 +231,7 @@ void insertParaEntry(IdNode id){
 string getIdName(string CName, YYLTYPE locate){
     for(auto it = idTable.rbegin();it!=idTable.rend();++it){
         if(it->CName==CName&&isScopeAlive(it->scope)){
-            return = it->EName;
-            break;
+            return it->EName;
         }
     }
     // not found
@@ -215,7 +245,7 @@ string getIdName(string CName, YYLTYPE locate){
 int tempCounter = 0;
 string newTemp(){
     string temp = "t" + to_string(tempCounter);
-    tempCounter++；
+    tempCounter++;
     return temp;
 }
 

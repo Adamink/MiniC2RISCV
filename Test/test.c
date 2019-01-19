@@ -1,3 +1,6 @@
+#include <stdio.h>
+int f(){}
 int main(){
-    int a[;
+    int a = f();
+    printf("%d\n",a);
 }

@@ -57,4 +57,8 @@ class ExprNode:public Node{
         string valueID;
         ExprNode();
 };
+class ExprListNode:public Node{
+    public:
+        ExprListNode();
+};
 #endif

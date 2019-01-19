@@ -87,6 +87,17 @@ test.c:2:5: note: previous definition of ‘a’ was here
 
 ## 缺少返回值
 
+```C
+#include <stdio.h>
+int f(){}
+int main(){
+    int a = f();
+    printf("%d\n",a);
+}
+```
+
+
+
 ## 函数重名
 
 ```c

@@ -40,10 +40,10 @@ using namespace std;
 Program:    
     GlobalList
     {
-            Node* ret = new RootNode();
+            RootNode* ret = new RootNode();
             ret->addChild($1);
             ret->finishParsing();
-            $$ = ret;
+            $$ = (Node*)ret;
     }
     ;
 GlobalList:
@@ -179,7 +179,7 @@ FuncDecl:
     {
         Node* ret = new FuncNode();
         string name = string($2);
-        createFuncEntry(name, DeclType, $4, @2);
+        createFuncEntry(name, DeclType, (ParaListNode*)$4, @2);
         $$ = ret;
     }
     |
@@ -197,29 +197,29 @@ FuncDefn:
     * if ok, insert funcEntry to funcTable for future check
     * if also FuncDefn insert paraList to idTable and newScope()
     */
-        createFuncEntry(name, DefnType,$4, @2);
+        string name = string($2);
+        createFuncEntry(name, DefnType,(ParaListNode*)$4, @2);
     }
     Blocks '}' 
     {
         Node* ret = new FuncNode();
         ret->addChild($8);
-        int paraNum = getParaNum($4);
-        string codeBefore = "f_" + $2 + " [" +to_string(paraNum) + "]\n";
+        int paraNum = getParaNum((ParaListNode*)$4);
+        string codeBefore = "f_" + string($2) + " [" +to_string(paraNum)
+         + "]\n";
         string codeAfter;
 
         // add return automatically
-        int hasReturn = checkReturn(ret);
         if(!hasReturn)
-            codeAfter = "return\n" + "end f_" + $2 + "\n";
+            codeAfter = "return 0\nend f_" + string($2) + "\n";
         else
-            codeAfter = "end f_" + $2 +"\n";
+            codeAfter = "end f_" + string($2) +"\n";
         ret->appendCodeBefore(codeBefore);
         ret->appendCodeAfter(codeAfter);
         $$ = ret;
 
-        // exit func
-        endScope();
-        funcName = string();
+        // exit func, endScope(), reset funcName
+        exitFunc();
     }
     ;
 // a block that can be seen as one statement
@@ -253,8 +253,8 @@ Block:
     IF '(' Expression ')' Block ELSE Block
     {
         Node* midNode = new OtherNode();
-        midNode.addChild($5);
-        midNode.addChild($7);
+        midNode->addChild($5);
+        midNode->addChild($7);
         Node* ret = new OtherNode();
         ret->addChild($3);
         ret->addChild(midNode);
@@ -271,7 +271,7 @@ Block:
     |
     WHILE '(' Expression ')' Block
     {
-        Node* ret = new Node();
+        Node* ret = new OtherNode();
         ret->addChild($3);
         ret->addChild($5);
         string l1 = newLabel();
@@ -319,6 +319,7 @@ Statement:
         $$ = ret;
         string s = "return " + ((ExprNode*)$2)->valueID + "\n";
         ret->appendCodeAfter(s);
+        hasReturn = true;
     }
     |
     error ';'
@@ -403,7 +404,7 @@ Expression:
     MINUS Expression %prec UMINUS
     {
         ExprNode* ret = new ExprNode();
-        ret->addChild($1);
+        ret->addChild($2);
         string tmp = newTemp();
         string code = "var " + tmp + "\n" + tmp + " = -" +
          ((ExprNode*)$2)->valueID + "\n";
@@ -577,7 +578,7 @@ Expression:
                 ret->valueID = tmp;
                 code << "var " << tmp << endl;
                 for(auto& para:call.paraList){
-                    code << "param " << para.Ename << endl;
+                    code << "param " << para.EName << endl;
                 }
                 code << tmp << " = call " << name << endl;
                 ret->appendCodeAfter(code.str());
@@ -591,7 +592,7 @@ Expression:
             ret->valueID = tmp;
             code << "var " << tmp << endl;
             for(auto& para:call.paraList){
-                code << "param " << para.Ename << endl;
+                code << "param " << para.EName << endl;
             }
             code << tmp << " = call " << name << endl;
             ret->appendCodeAfter(code.str());
@@ -601,9 +602,9 @@ Expression:
     |
     ID '[' Expression ']'
     {
-        Node* ret = new Node();
+        ExprNode* ret = new ExprNode();
         ret->addChild($3);
-        $$ = ret;
+        $$ = (Node*)ret;
 
         string CName = string($1);
         string EName = getIdName(CName, @1);

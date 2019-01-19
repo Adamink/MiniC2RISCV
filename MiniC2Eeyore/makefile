@@ -6,7 +6,7 @@ eeyore: $(OBJS)
 
 # rules
 %.cc: %.y
-	bison -o $@ $< --verbose -W
+	bison -o $@ $< --verbose
 
 %.cc: %.l
 	flex -o $@ $<

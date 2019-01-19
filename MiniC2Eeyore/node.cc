@@ -75,3 +75,8 @@ FuncNode::FuncNode():Node(FuncNodeType){};
  * class ExprNode
  *-----------------------------------------------*/
 ExprNode::ExprNode():Node(ExprNodeType){};
+
+/*-----------------------------------------------
+ * class ExprListNode
+ *-----------------------------------------------*/
+ExprListNode::ExprListNode():Node(ExprListNodeType){};
