@@ -1,11 +1,13 @@
 %{
 #include "util.h"
 #define YY_USER_ACTION update_loc();
+%}
+
 %option noyywrap
 %option yylineno
 
 %x COMMENT
-int     -?{[0-9]+}+
+int     \-?[0-9]+
 id      [a-zA-Z_][a-zA-Z0-9_]*
 blank    ([ \f\r\t\v]+)*
 
@@ -33,7 +35,7 @@ blank    ([ \f\r\t\v]+)*
 "!="            {readToken(yytext);return(NOTEQUAL);}
 "="             {readToken(yytext);return(ASSIGN);}
 "if"            {readToken(yytext);return(IF);}
-"else"          {readToken(yytext);return(ELSE)}
+"else"          {readToken(yytext);return(ELSE);}
 "while"         {readToken(yytext);return(WHILE);}
 "return"        {readToken(yytext);return(RETURN);}
 "("             {readToken(yytext);return('(');}
