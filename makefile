@@ -20,7 +20,7 @@ $(R):
 	$(MAKE) -C $(DIR_R)
 
 tar: $(SOURCE)
-	tar -cvf 1600012807.tar $(E) $(T) $(R) makefile
+	tar -cvf 吴箫_1600012807.tar *
 
 clean: 
 	@rm -f $(OBJECT) $(E) $(T) $(R)
