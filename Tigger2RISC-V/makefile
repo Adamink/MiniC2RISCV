@@ -2,7 +2,7 @@ OBJECT = riscv64
 OBJS += yacc.o node.o
 HEADERS += node.h lex.cc
 SOURCE += lex.l node.cc node.h yacc.y
-BINDEPENDANCY += ../MiniC2Eeyore/eeyore ../Eeyore2Tigger/tigger
+BIN += ../MiniC2Eeyore/eeyore ../Eeyore2Tigger/tigger
 
 $(OBJECT): $(OBJS)
 	g++ -o $@ $(OBJS) -std=c++11 -ly -ll
@@ -18,7 +18,7 @@ $(OBJECT): $(OBJS)
 	g++ -c -o $@ $< -std=c++11
 
 tar: $(SOURCE)
-	tar -cvf 1600012807.tar $(SOURCE) makefile
+	tar -cvf 1600012807.tar $(SOURCE) $(BIN) makefile
 
 clean:
 	@rm -f $(OBJECT) *.o 1600012807.tar yacc.cc lex.cc
