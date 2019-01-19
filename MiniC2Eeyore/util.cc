@@ -49,9 +49,10 @@ void setInput(char* fileName){
             linesFromSource[i] = lineBuffer.str();
             i++;
             f << lineBuffer.str();
-            lineBuffer.clear();
+            lineBuffer.str("");
         }
     }
+    f.close();
     /*
     while(getline(cin, line)){
         linesFromSource[i] = line + "\n";
