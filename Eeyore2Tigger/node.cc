@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <deque>
+#include <stack>
 
 #include "output.h"
 
@@ -28,44 +29,46 @@ RootNode::RootNode():Node(RootNodeType){};
 
 // 调用全局声明和函数的genCode
 void RootNode::genCode(){
-    deque<Node*> bfsQueue = deque<Node*>();
-    for(auto& child:children){
-        bfsQueue.push_back(child);
+    stack<Node*> dfsStack = stack(Node*)();
+    int l = children.size();
+    for(int i = l-1;i>=0;i--){
+        dfsStack.push(children[i]);
     }
-    while(!bfsQueue.empty()){
-        Node* front = bfsQueue.front();
-        bfsQueue.pop_front();
-        if(front->getNodeType()==GlobalDeclareNodeType)
-            front->genCode();
-        else if(front->getNodeType()==FuncNodeType)
-            front->genCode();
-        else if(front->getNodeType()==OtherNodeType){
-            for(auto& child:front->children){
-                bfsQueue.push_back(child);
-            }
-        //else do nothing
+    while(!dfsStack.empty()){
+        Node* top = dfsStack.top();
+        dfsStack.pop();
+        if(top->getNodeType()==GlobalDeclareNodeType)
+            top->genCode();
+        else if(top->getNodeType()==FuncNodeType)
+            top->genCode();
+        else if(top->getNodeType()==OtherNodeType){
+            int l = top->children.size();
+            for(int i = l-1;i>=0;i--){
+                dfsStack.push(top->children[i]);
+            }   
         }
     }
 }
 
 // 调用全局声明和函数的printCode
 void RootNode::printCode(){
-    deque<Node*> bfsQueue = deque<Node*>();
-    for(auto& child:children){
-        bfsQueue.push_back(child);
+    stack<Node*> dfsStack = stack(Node*)();
+    int l = children.size();
+    for(int i = l-1;i>=0;i--){
+        dfsStack.push(children[i]);
     }
-    while(!bfsQueue.empty()){
-        Node* front = bfsQueue.front();
-        bfsQueue.pop_front();
-        if(front->getNodeType()==GlobalDeclareNodeType)
-            front->printCode();
-        else if(front->getNodeType()==FuncNodeType)
-            front->printCode();
-        else if(front->getNodeType()==OtherNodeType){
-            for(auto& child:front->children){
-                bfsQueue.push_back(child);
-            }
-        //else do nothing
+    while(!dfsStack.empty()){
+        Node* top = dfsStack.top();
+        dfsStack.pop();
+        if(top->getNodeType()==GlobalDeclareNodeType)
+            top->printCode();
+        else if(top->getNodeType()==FuncNodeType)
+            top->printCode();
+        else if(top->getNodeType()==OtherNodeType){
+            int l = top->children.size();
+            for(int i = l-1;i>=0;i--){
+                dfsStack.push(top->children[i]);
+            }   
         }
     }
 }
@@ -116,21 +119,22 @@ void FuncNode::initPara(){
 // 将子树中所有ExprNode调整为直接孩子，设置ExprNode的FuncParent
 void FuncNode::adjustExprsToDirectChild(){
     vector<Node*> newChildren = vector<Node*>();
-    deque<Node*> bfsQueue = deque<Node*>();
-    for(auto& child:children){
-        bfsQueue.push_back(child);
+    stack<Node*> dfsStack = stack(Node*)();
+    int l = children.size();
+    for(int i = l-1;i>=0;i--){
+        dfsStack.push(children[i]);
     }
-    while(!bfsQueue.empty()){
-        Node* front = bfsQueue.front();
-        bfsQueue.pop_front();
-        if(front->getNodeType()==ExprNodeType)
-            newChildren.push_back(front);
-        else if(front->getNodeType()==OtherNodeType){
-            for(auto& child:front->children){
-                bfsQueue.push_back(child);
-            }
+    while(!dfsStack.empty()){
+        Node* top = dfsStack.top();
+        dfsStack.pop();
+        if(top->getNodeType()==ExprNodeType)
+            newChildren.push_back(top);
+        else if(top->getNodeType()==OtherNodeType){
+            int l = top->children.size();
+            for(int i = l-1;i>=0;i--){
+                dfsStack.push(top->children[i]);
+            }   
         }
-        // else do nothing
     }
     children = newChildren;
     for(auto& child:children){

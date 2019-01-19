@@ -34,8 +34,8 @@ void Scope::newScope(){
     aliveScope.push_back(currentScope);
 }
 void Scope::endScope(){
-    currentScope = aliveScope.back();
     aliveScope.pop_back();
+    currentScope = aliveScope.back();
 }
 Scope scope = Scope();
 void newScope(){
@@ -214,6 +214,7 @@ vector<IdEntry> idTable = vector<IdEntry>();
  * else printErrorInfo
  */
 void createIdEntry(string CName, IdType t, YYLTYPE locate){
+    debugging("create ID:" + CName + " scope: " + to_string(scope.currentScope));
     for(auto it = idTable.rbegin();it!=idTable.rend();++it){
         if(it->CName==CName&&it->scope==scope.currentScope){
             // redefinition, stop creating

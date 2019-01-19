@@ -39,10 +39,18 @@ test16: eeyore
 	./$< < ${TESTFOLDER}/16_equal.c > ${TESTFOLDER}/16_equal.e
 	@cat ${TESTFOLDER}/16_equal.e	
 
+test20: eeyore
+	./$< < ${TESTFOLDER}/20_neg_expr.c > ${TESTFOLDER}/20_neg_expr.e
+	@cat ${TESTFOLDER}/20_neg_expr.e
+
 test21: eeyore
 	./$< < ${TESTFOLDER}/21_arr_sum.c > ${TESTFOLDER}/21_arr_sum.e
 	@cat ${TESTFOLDER}/21_arr_sum.e	
 
+test24: eeyore
+	./$< < ${TESTFOLDER}/24_suminput.c > ${TESTFOLDER}/24_suminput.e
+	@cat ${TESTFOLDER}/24_suminput.e	
+	
 tar: $(SOURCE)
 	tar -cvf 1600012807.tar $(SOURCE) makefile
 

@@ -213,7 +213,7 @@ FuncDefn:
         ret->addChild($8);
         int paraNum; //= getParaNum((ParaListNode*)$4);
         FuncEntry* f = findFuncEntry($2, @2);
-        if(f==NULL) debugging("func shoule be defined\n");
+        if(f==NULL) debugging("func should be defined\n");
         paraNum = f->paraList.size();
         string codeBefore = "f_" + string($2) + " [" +to_string(paraNum)
          + "]\n";
@@ -239,14 +239,13 @@ Block:
         Node* ret = new OtherNode();
         ret->addChild($1);
         $$ = ret;
-        debugging("reducing statement to block\n");
+        debugging("reducing statement to block");
     }
     |
     '{' {newScope();} Blocks '}'
     {
         endScope();
         $$ = $3;
-        debugging("shouln't go here\n");
     }
     |
     IF '(' Expression ')' Block
@@ -291,7 +290,8 @@ Block:
         string jmp1 = 
         "if " + ((ExprNode*)$3)->valueID + " == 0 goto " + l2 + "\n";
         string jmp2 = "goto " + l1 + "\n";
-        ret->appendCodeMiddle(l1 + ":\n" + jmp1);
+        ret->appendCodeBefore(l1 + ":\n");
+        ret->appendCodeMiddle(jmp1);
         ret->appendCodeAfter(jmp2 + l2 + ":\n");
         $$ = ret;
     }
@@ -323,6 +323,7 @@ Statement:
     VarDefn
     {
         $$ = $1;
+        debugging("reducing vardefn to statement");
     }
     |
     RETURN Expression ';'
@@ -389,6 +390,11 @@ Expression:
         ret->isID = true;
         ret->valueID = getIdName(name, @1);
         $$ = (Node*)ret;
+    }
+    |
+    '(' Expression ')'
+    {
+        $$ = $2;
     }
     |
     Expression PLUS Expression
