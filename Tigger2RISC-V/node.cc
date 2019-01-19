@@ -21,12 +21,12 @@ Node::Node(NodeType t){
 }
 void Node::printAllCode(){
     cout << codeBeforeChildren;
-    cerr << codeBeforeChildren;
+    if(debug) cerr << codeBeforeChildren;
     for(auto& i:children){
         i->printAllCode();
     }
     cout << codeAfterChildren;
-    cerr << codeAfterChildren;
+    if(debug) cerr << codeAfterChildren;
 }
 void Node::appendCode(const string& src){
     codeBeforeChildren+=src;

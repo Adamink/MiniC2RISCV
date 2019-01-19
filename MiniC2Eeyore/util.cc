@@ -157,13 +157,13 @@ void debugging(string s){
 
 void printFinal(){
     if(error){
-        cerr << separateLine("Error Info");
+        debugging(separateLine("Error Info"));
         cerr << errorStream.str();
     }
     else{
-        cerr << separateLine("Warning Info");
+        debugging(separateLine("Warning Info"));
         cerr << warningStream.str();
-        cerr << separateLine("Output");
+        debugging(separateLine("Output"));
         cout << outputStream.str();
     }
 

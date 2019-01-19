@@ -1017,6 +1017,7 @@ void node::print_tree(){
 };
 
 void node::show_self(){
+    /*
     cerr << "++++++++++++++++++++++" << endl;
     cerr << nodeTypeMap[type] << " size: " << sizeof(idType) << endl; 
     cerr << "name: " << name << " " << "size: " << name.length()<<endl;
@@ -1032,5 +1033,5 @@ void node::show_self(){
     if(child.size()>0){
         for(auto& it:child)
             it->show_self();
-    }
+    }*/
 }

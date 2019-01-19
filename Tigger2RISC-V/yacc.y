@@ -37,7 +37,7 @@ Goal:	GlobalList
 			ret->addChild($1);
             ret->fillReturnNode();
             ret->printAllCode();
-            cerr << inputFile.str();
+            // cerr << inputFile.str();
 			$$ = ret;
 		}
 		;
@@ -257,12 +257,12 @@ Expression:
                     break;
                 case AND:
                     opAsm = "bnez";
-                    cerr << "&& appears in if-goto" << endl;
+                    //cerr << "&& appears in if-goto" << endl;
                     assert(false);
                     break;
                 case OR:
                     opAsm = "bnez";
-                    cerr << "|| appears in if-goto" << endl;
+                    //cerr << "|| appears in if-goto" << endl;
                     assert(false);
                     break;
             }

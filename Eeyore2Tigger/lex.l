@@ -6,7 +6,7 @@
 #include <string.h>
 
 int lineCount = 0;
-int debug = 1;
+int debug = 0;
 void redirectInput(){
     if(debug)
         cerr << yytext;
