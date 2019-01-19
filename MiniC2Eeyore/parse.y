@@ -585,7 +585,7 @@ Expression:
                 for(auto& para:call.paraList){
                     code << "param " << para.EName << endl;
                 }
-                code << tmp << " = call " << name << endl;
+                code << tmp << " = call f_" << name << endl;
                 ret->appendCodeAfter(code.str());
                 ret->valueID = tmp;
             }
@@ -599,7 +599,7 @@ Expression:
             for(auto& para:call.paraList){
                 code << "param " << para.EName << endl;
             }
-            code << tmp << " = call " << name << endl;
+            code << tmp << " = call f_" << name << endl;
             ret->appendCodeAfter(code.str());
             ret->valueID = tmp;
         }
@@ -647,7 +647,6 @@ Expression:
 
         string CName = string($1);
         string EName = getIdName(CName,@1);
-        string temp1 = newTemp();
         // string temp2 = newTemp();
         stringstream code = stringstream();
         ExprNode* expr = (ExprNode*)$3;
@@ -656,6 +655,7 @@ Expression:
             code << EName << "[" << to_string(bias) << "] = " << ((ExprNode*)$6)->valueID << endl;
         }
         else{
+            string temp1 = newTemp();
             code << "var " << temp1 << endl;
             code << temp1 << " = 4 * " << ((ExprNode*)$3)->valueID <<endl;
             // code << "var " << temp2 << endl;
