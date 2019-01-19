@@ -13,7 +13,7 @@ eeyore: $(OBJS)
 	flex -o $@ $<
 
 %.o: %.cc $(HEADERS)
-	g++ -c -o $@ $<
+	g++ -c -o $@ $< -std=c++11
 
 test0: eeyore
 	./$< < ${TESTFOLDER}/01_main.c > ${TESTFOLDER}/01_main.e
@@ -38,5 +38,5 @@ test21: eeyore
 tar: $(SOURCE)
 	tar -cvf 1600012807.tar $(SOURCE) makefile
 
-clear: 
-	rm eeyore *.o parse.cc lex.cc 1600012807.tar
+clean: 
+	@rm -f eeyore *.o parse.cc lex.cc 1600012807.tar
