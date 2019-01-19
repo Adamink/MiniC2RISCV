@@ -43,4 +43,4 @@ tar: $(SOURCE)
 	tar -cvf 1600012807.tar $(SOURCE) makefile
 
 clean: 
-	@rm -f eeyore *.o parse.cc lex.cc 1600012807.tar
+	@rm -f eeyore *.o lex.cc 1600012807.tar

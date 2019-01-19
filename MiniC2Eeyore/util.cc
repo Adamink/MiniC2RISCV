@@ -49,6 +49,16 @@ void setInput(char* fileName){
             linesFromSource[i] = lineBuffer.str();
             i++;
             f << lineBuffer.str();
+            debugging(lineBuffer.str());
+            lineBuffer.str("");
+        }
+    }
+    if((lineBuffer.str()).length() > 0){
+        if(c=='\n'){
+            linesFromSource[i] = lineBuffer.str();
+            i++;
+            f << lineBuffer.str();
+            debugging(lineBuffer.str());
             lineBuffer.str("");
         }
     }
@@ -167,6 +177,7 @@ void printFinal(){
  *-----------------------------------------------*/
 int main(int argc, char *argv[]){
     char fileName[20] = "eeyore.log";
+    debugging(separateLine("Input Code"));
     setInput(fileName);
     yyin = fopen(fileName,"r");
     debugging(separateLine("Debugging Info"));
