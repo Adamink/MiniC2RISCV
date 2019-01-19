@@ -1,11 +1,14 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
+#include <string>
 using namespace std;
 int main(){
-    vector<int> a = vector<int>();
-    a.push_back(0);
-    a.push_back(1);
-    for(auto it:a){
-        cout << it << endl;
+    string s = "a";
+    fstream f;
+    f.open("tmp.txt",fstream::out);
+    if(!f.is_open()){
+        cerr << "fail openinig" << endl;
     }
+    f << s << endl;
+    f.close();
 }

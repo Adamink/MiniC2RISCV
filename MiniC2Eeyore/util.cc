@@ -33,12 +33,14 @@ static const int maxLines = 1024;
 string linesFromSource[maxLines];
 /* copy input to file and set linesFromSource */
 void setInput(char* fileName){
-    fstream f = fstream(fileName);
+    fstream f;
+    f.open(fileName, fstream::in | fstream::out | fstream::trunc);
     string line;
     int i = 1;
     while(getline(cin, line)){
-        linesFromSource[i] = line;
-        f << line;
+        linesFromSource[i] = line + "\n";
+        i++;
+        f << line << endl;
     }
     f.close();
 }
@@ -51,56 +53,23 @@ void readToken(char* s){
 
 int error = 0;
 int warning = 0;
-int debug = 0;
+int debug = 1;
 
 stringstream outputStream = stringstream();
 stringstream errorStream = stringstream();
 stringstream warningStream = stringstream();
 stringstream debugStream = stringstream();
 
-void print(string s){
-    outputStream << s;
+string indicateLine(int l){
+    stringstream line = stringstream();
+    for(int i = 0;i<l-1;i++){
+        line << " ";
+    }
+    line << "^" << endl;
+    return line.str();
 }
 
-void printErrorInfo(string errMsg, YYLTYPE l){
-    error = 1;
-
-    string locate = string();
-    string line = string();
-    string errInfo = string();
-    string envMsg = string();
-    if(inFunc())
-        envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
-
-    locate = to_string(l.first_line) + ":" + to_string(l.first_column) + ":";
-    errMsg = inputFileName + ":" + locate + " error: " + errMsg + "\n";
-    line = linesFromSource[l.first_line];
-
-    errInfo = envMsg + errMsg + line;
-    errorStream << errInfo;      
-}
-void printWarningInfo(string wrnMsg, YYLTYPE l){
-    warning = 1;
-
-    string locate = string();
-    string line = string();
-    string wrnInfo = string();
-    string envMsg = string();
-    
-    if(inFunc())
-        envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
-
-    locate = to_string(l.first_line) + ":" + to_string(l.first_column) + ":";
-    wrnMsg = inputFileName + ":" + locate + " warning: " + wrnMsg + "\n";
-    line = linesFromSource[l.first_line];
-
-    wrnInfo = envMsg + wrnMsg + line;
-    warningStream << wrnInfo;
-}
-void debugging(string s){
-    debugStream << s;
-}
-static string separateLine(string msg){
+string separateLine(string msg){
     int beforeLen = 20;
     int dstLen = 60;
     int msgLen = msg.length() + 2;
@@ -117,11 +86,52 @@ static string separateLine(string msg){
     line << endl;
     return line.str();
 }
+
+void print(string s){
+    outputStream << s;
+}
+
+void printErrorInfo(string errMsg, YYLTYPE l){
+    error = 1;
+
+    string locate = string();
+    string line = string();
+    string errInfo = string();
+    string envMsg = string();
+    string locateMsg = string();
+    if(inFunc())
+        envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
+
+    locate = to_string(l.first_line) + ":" + to_string(l.first_column) + ":";
+    errMsg = inputFileName + ":" + locate + " error: " + errMsg + "\n";
+    line = linesFromSource[l.first_line];
+    locateMsg = indicateLine(l.first_column);
+    errInfo = envMsg + errMsg + line + locateMsg;
+    errorStream << errInfo;      
+}
+void printWarningInfo(string wrnMsg, YYLTYPE l){
+    warning = 1;
+
+    string locate = string();
+    string line = string();
+    string wrnInfo = string();
+    string envMsg = string();
+    string locateMsg = string();
+    if(inFunc())
+        envMsg = inputFileName + ": In function '" + funcName + "':\n"; 
+
+    locate = to_string(l.first_line) + ":" + to_string(l.first_column) + ":";
+    wrnMsg = inputFileName + ":" + locate + " warning: " + wrnMsg + "\n";
+    line = linesFromSource[l.first_line];
+    locateMsg = indicateLine(l.first_column);
+    wrnInfo = envMsg + wrnMsg + line + locateMsg;
+    warningStream << wrnInfo;
+}
+void debugging(string s){
+    cerr << s;
+}
+
 void printFinal(){
-    if(debug){
-        cerr << separateLine("Debug Info");
-        cerr << debugStream.str();
-    }
     if(error){
         cerr << separateLine("Error Info");
         cerr << errorStream.str();
@@ -129,6 +139,7 @@ void printFinal(){
     else{
         cerr << separateLine("Warning Info");
         cerr << warningStream.str();
+        cerr << separateLine("Output");
         cout << outputStream.str();
     }
 
@@ -140,6 +151,7 @@ int main(int argc, char *argv[]){
     char fileName[20] = "eeyore.log";
     setInput(fileName);
     yyin = fopen(fileName,"r");
+    cerr << separateLine("Debugging Info");
     yyparse();
     printFinal();
 }

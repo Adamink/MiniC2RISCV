@@ -5,7 +5,12 @@ using namespace std;
 /*-----------------------------------------------
  * class Node
  *-----------------------------------------------*/
-Node::Node(NodeType t_):nodeType(t_){};
+Node::Node(NodeType t_):nodeType(t_){
+    codeBefore = stringstream();
+    codeMiddle = stringstream();
+    codeAfter = stringstream();
+    children = vector<Node*>();
+};
 void Node::addChild(Node* child){
     children.push_back(child);
 }
@@ -27,10 +32,9 @@ void Node::printCodeRecursively(){
         children[0]->printCodeRecursively();
     }
     print(codeMiddle.str());
-    auto it = children.begin();
-    ++it;
-    for(;it!=children.end();++it){
-        (*it)->printCodeRecursively();
+    int l = children.size();
+    for(int i = 1;i<l;i++){
+        children[i]->printCodeRecursively();
     }
     print(codeAfter.str());
 }

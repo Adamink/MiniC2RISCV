@@ -40,6 +40,7 @@ using namespace std;
 Program:    
     GlobalList
     {
+            debugging("finish parsing\n");
             RootNode* ret = new RootNode();
             ret->addChild($1);
             ret->finishParsing();
@@ -202,6 +203,7 @@ FuncDefn:
     }
     Blocks '}' 
     {
+        debugging("finish parsing block\n");
         Node* ret = new FuncNode();
         ret->addChild($8);
         int paraNum = getParaNum((ParaListNode*)$4);
