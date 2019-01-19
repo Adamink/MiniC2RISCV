@@ -7,7 +7,7 @@ eeyore: $(OBJS)
 
 # rules
 %.cc: %.y
-	bison -o $@ $< --verbose
+	bison -o $@ $<
 
 %.cc: %.l
 	flex -o $@ $<
@@ -17,39 +17,7 @@ eeyore: $(OBJS)
 
 test0: eeyore
 	./$< < ${TESTFOLDER}/01_main.c > ${TESTFOLDER}/01_main.e
-	@cat ${TESTFOLDER}/01_main.e
-
-test5: eeyore
-	./$< < ${TESTFOLDER}/05_funcdefn.c > ${TESTFOLDER}/05_funcdefn.e
-	@cat ${TESTFOLDER}/05_funcdefn.e
-
-test6: eeyore
-	./$< < ${TESTFOLDER}/06_add.c > ${TESTFOLDER}/06_add.e
-	@cat ${TESTFOLDER}/06_add.e
-
-test11: eeyore
-	./$< < ${TESTFOLDER}/11_if_else.c > ${TESTFOLDER}/11_if_else.e
-	@cat ${TESTFOLDER}/11_if_else.e
-
-test12: eeyore
-	./$< < ${TESTFOLDER}/12_while.c > ${TESTFOLDER}/12_while.e
-	@cat ${TESTFOLDER}/12_while.e
-
-test16: eeyore
-	./$< < ${TESTFOLDER}/16_equal.c > ${TESTFOLDER}/16_equal.e
-	@cat ${TESTFOLDER}/16_equal.e	
-
-test20: eeyore
-	./$< < ${TESTFOLDER}/20_neg_expr.c > ${TESTFOLDER}/20_neg_expr.e
-	@cat ${TESTFOLDER}/20_neg_expr.e
-
-test21: eeyore
-	./$< < ${TESTFOLDER}/21_arr_sum.c > ${TESTFOLDER}/21_arr_sum.e
-	@cat ${TESTFOLDER}/21_arr_sum.e	
-
-test24: eeyore
-	./$< < ${TESTFOLDER}/24_suminput.c > ${TESTFOLDER}/24_suminput.e
-	@cat ${TESTFOLDER}/24_suminput.e	
+	@cat ${TESTFOLDER}/01_main.e	
 	
 tar: $(SOURCE)
 	tar -cvf 1600012807.tar $(SOURCE) makefile

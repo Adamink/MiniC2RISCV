@@ -10,10 +10,10 @@ $(OBJECT): $(OBJS)
 	$(CC) -o $(OBJECT) $(OBJS) -std=c++11 -ly -ll
 
 %.o: %.cc $(HEADERS) 
-	$(CC) -c -o $@ $<
+	$(CC) -c -o $@ $< -std=c++11
 
 %.cc: %.y
-	$(YACC) -o $@ $< --verbose
+	$(YACC) -o $@ $<
 
 %.cc: %.l
 	$(LEX) -o $@ $<

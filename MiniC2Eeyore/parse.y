@@ -5,7 +5,6 @@
 #include "env.h"
 
 using namespace std;
-#define YYERROR_VERBOSE 1
 %}
 /* generate include-file with symbols and types */
 %locations
