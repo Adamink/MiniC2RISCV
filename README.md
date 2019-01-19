@@ -1,24 +1,55 @@
 # MiniC2RISC-V
 
-## 报错系统
+This repository implements a simple compiler that turns MiniC code, whose grammar is a subset of ISO C, to RISC-V assembly code.
 
-## 变量域管理
+The code was written by Xiao Wu.
 
-## 自增和自减(++,--)
+## Prerequisites
 
-## 自动添加return
+- Linux
+- Flex, Bison
 
-## 条件表达式短路
+## Installation
 
-## For循环，do-while循环
+- Clone this repo:
 
-## 等式赋值
+  ```txt
+  git clone https://github.com/Adamink/MiniC2RISC-V.git
+  ```
 
-## 表达式独立成句
+- Compile and install: For Linux shell users, type command
 
-## 单用减号（加号？）
+  ```txt
+  make clean
+  make
+  ```
 
-## 表达式参数传递
+## Run
+
+- The executable file is `g--`, to compile a MiniC file, type
+
+  ```txt
+  ./g-- example/1.c -o example/1.o 
+  ```
+
+  or simply
+
+  ```txt
+  ./g-- example/1.c
+  ```
+
+- To run the compiler on examples, type
+
+  ```txt
+  make example
+  ```
+
+
+
+
+
+
+
 
 
 
