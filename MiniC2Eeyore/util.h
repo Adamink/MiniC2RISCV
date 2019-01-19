@@ -12,7 +12,7 @@ using namespace std;
  *-----------------------------------------------*/
 extern int yylex(void);
 extern int yyparse(void);
-extern void yyerror(char*);
+extern void yyerror(const char*);
 extern FILE* yyin;
 extern char* yytext;
 extern void update_loc();

@@ -712,6 +712,6 @@ Expression:
     ;
 
 %%
-void yyerror(char *s) {
+void yyerror(const char *s) {
     cerr << s;
 }
