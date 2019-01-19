@@ -53,15 +53,11 @@ void setInput(char* fileName){
             lineBuffer.str("");
         }
     }
-    if((lineBuffer.str()).length() > 0){
-        if(c=='\n'){
-            linesFromSource[i] = lineBuffer.str();
-            i++;
-            f << lineBuffer.str();
-            debugging(lineBuffer.str());
-            lineBuffer.str("");
-        }
-    }
+    linesFromSource[i] = lineBuffer.str();
+    i++;
+    f << lineBuffer.str();
+    debugging(lineBuffer.str());
+    lineBuffer.str("");
     f.close();
     /*
     while(getline(cin, line)){

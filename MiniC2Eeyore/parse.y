@@ -211,7 +211,10 @@ FuncDefn:
         debugging("reducing blocks to FuncDefn\n");
         Node* ret = new FuncNode();
         ret->addChild($8);
-        int paraNum = getParaNum((ParaListNode*)$4);
+        int paraNum; //= getParaNum((ParaListNode*)$4);
+        FuncEntry* f = findFuncEntry($2, @2);
+        if(f==NULL) debugging("func shoule be defined\n");
+        paraNum = f->paraList.size();
         string codeBefore = "f_" + string($2) + " [" +to_string(paraNum)
          + "]\n";
         string codeAfter;
@@ -376,6 +379,7 @@ Expression:
         ret->isInteger = true;
         ret->valueID = to_string($1);
         $$ = (Node*)ret;
+        debugging("reducing integer to Expression\n");
     }
     |
     ID
@@ -410,7 +414,8 @@ Expression:
          ((ExprNode*)$1)->valueID + " - " + ((ExprNode*)$3)->valueID + "\n";
         ret->appendCodeAfter(code);
         ret->valueID = tmp;
-        $$ = (Node*)ret;           
+        $$ = (Node*)ret;    
+        debugging("reduce to MINUS Expression\n");       
     }
     |
     MINUS Expression %prec UMINUS

@@ -31,6 +31,10 @@ test11: eeyore
 	./$< < ${TESTFOLDER}/11_if_else.c > ${TESTFOLDER}/11_if_else.e
 	@cat ${TESTFOLDER}/11_if_else.e
 
+test12: eeyore
+	./$< < ${TESTFOLDER}/12_while.c > ${TESTFOLDER}/12_while.e
+	@cat ${TESTFOLDER}/12_while.e
+
 test16: eeyore
 	./$< < ${TESTFOLDER}/16_equal.c > ${TESTFOLDER}/16_equal.e
 	@cat ${TESTFOLDER}/16_equal.e	

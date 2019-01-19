@@ -11,20 +11,15 @@
 #include <stack>
 #include <set>
 #include "node.h"
+#include "util.h"
+
 using namespace std;
 
-extern int yylex();
-extern int yyparse();
-void yyerror(char *s){
-	cerr<<s<<endl;
-}
-extern "C"{
-	int yywrap(void){
-		return 1;
-	}
-}
+#define YYERROR_VERBOSE 1
 
 %}
+%locations
+
 %start Goal
 %union{
     int ival;
