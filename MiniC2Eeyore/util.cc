@@ -76,7 +76,7 @@ void readToken(char* s){
 
 int error = 0;
 int warning = 0;
-int debug = 1;
+int debug = 0;
 
 stringstream outputStream = stringstream();
 stringstream errorStream = stringstream();
@@ -179,4 +179,5 @@ int main(int argc, char *argv[]){
     debugging(separateLine("Debugging Info"));
     yyparse();
     printFinal();
+    return error;
 }
