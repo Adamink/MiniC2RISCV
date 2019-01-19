@@ -4,156 +4,142 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
-#include <cassert>
 #include <vector>
 #include <string>
 #include <map>
 #include <stack>
 #include <set>
 #include "node.h"
-#include "util.h"
-
 using namespace std;
 
-#define YYERROR_VERBOSE 1
+int yylex();
+int yyparse();
+void yyerror(char *s){
+	cerr<<s<<endl;
+}
+extern "C"{
+	int yywrap(void){
+		return 1;
+	}
+}
 
 %}
-%locations
-
 %start Goal
 %union{
     int ival;
     char* sval;	
-    Node* nval;
+    node* nval;
 };
 
 %token <ival> INTEGER
-%token <sval> FUNC LABEL ID PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS
- GREATER EQUAL NOTEQUAL ASSIGN LBRAC RBRAC IF GOTO CALL PARAM END RETURN VAR COLON
+%token <sval> FUNC LABEL ID PLUS MINUS TIME DIVIDE MOD NOT AND OR LESS GREATER EQUAL NOTEQUAL ASSIGN LBRAC RBRAC IF GOTO CALL PARAM END RETURN VAR COLON Error
 
 %type <sval> Op2 Op1 LogicalOp
-%type <nval> LocalDeclaration FunctionDecl RightValue Expression GlobalList
- LocalList GlobalDeclaration Goal ParamList
+%type <nval> Declaration FunctionDecl RightValue Expression GlobalList LocalList GlobalDeclaration Goal
 
 %% 
 
 Goal:	GlobalList 
 		{
-			cerr << "Parsing ends" << endl;
-			Node* ret = new RootNode();
-			ret->addChild($1);
-            ret->genCode();
-            ret->printCode();
+			node* ret = new node(RootNode);
+			ret->add_child($1);
+			ret->adjust_child();
+			ret->set_table();
+			ret->all_allo_reg();
+			ret->all_gen_code();
 			$$ = ret;
 		}
 		;
 GlobalList:
 		GlobalDeclaration GlobalList
 		{
-			Node* ret = new OtherNode();
-			ret->addChild($1);
-			ret->addChild($2);
+			node* ret = new node(GlobalListNode);
+			ret->add_child($1);
+			ret->add_child($2);
 			$$ = ret;
 		}
 		|
 		FunctionDecl GlobalList
 		{
-			Node* ret = new OtherNode();
-			ret->addChild($1);
-			ret->addChild($2);
+			node* ret = new node(GlobalListNode);
+			ret->add_child($1);
+			ret->add_child($2);
 			$$ = ret;	
 		}
 		|
 		/* empty */
 		{
-			$$ = new OtherNode();
+			$$ = new node(GlobalListNode);
 		}
 		;
 GlobalDeclaration:
-		VAR ID
-        {
-            IdNode* id = new IdNode(string($2), true);
-            Node* ret = new GlobalDeclareNode(id);
-            $$ = ret;
-        }
-        |
-        VAR INTEGER ID
-        {
-            IdNode* id = new IdNode(string($3), true, $2);
-            Node* ret = new GlobalDeclareNode(id);
-            ret->addChild(id);
-            $$ = ret;
-        }
+		Declaration
+		{
+			$1->type = GlobalDeclareNode;
+			$$ = $1;
+		}
 		;
-LocalDeclaration:
+Declaration:
 		VAR ID
 		{
-			//node* ret = new node(DeclareNode);
-			//ret->name = string($2);
-			//$$ = ret;
-            Node* id = new IdNode(string($2));
-            Node* ret = new ExprNode(LocalDeclareType, "");
-            ret->addChild(id);
-            $$ = ret;
+			node* ret = new node(DeclareNode);
+			ret->name = string($2);
+			$$ = ret;
 		}
 		|
 		VAR INTEGER ID
 		{
-			Node* id = new IdNode(string($3), false, $2);
-            Node* ret = new ExprNode(LocalDeclareType, "");
-            ret->addChild(id);
-            $$ = ret;
+			node* ret = new node(DeclareNode);
+			ret->name = string($3);
+			ret->length = $2;
+			ret->isArray = true;
+			$$ = ret;
 		}
 		;	
 FunctionDecl:
 		FUNC LBRAC INTEGER RBRAC LocalList END FUNC
 		{
-            Node* ret = new FuncNode($1, $3);
-            ret->addChild($5);
-            $$ = ret;
+			node* ret = new node(FuncNode);
+			ret->paraNum = $3;
+			ret->name = string($1);
+			ret->add_child($5);
+			$$ = ret;
 		}
 		;
 LocalList:
 		Expression LocalList
 		{
-            Node* ret = new OtherNode();
-            ret->addChild($1);
-            ret->addChild($2);
-            $$ = ret;
+			node* ret = new node(ExprListNode);
+			ret->add_child($1);
+			ret->add_child($2);
+			$$ = ret;
 		}
 		|
-		LocalDeclaration LocalList
+		Declaration LocalList
 		{
-            Node* ret = new OtherNode();
-            ret->addChild($1);
-            ret->addChild($2);
-            $$ = ret;
+			node* ret = new node(ExprListNode);
+			ret->add_child($1);
+			ret->add_child($2);
+			$$ = ret;
 		}
-        |
-        Expression
-        {
-            Node* ret = new OtherNode();
-            ret->addChild($1);
-            $$ = ret;
-        }
-        |
-        LocalDeclaration
-        {
-            Node* ret = new OtherNode();
-            ret->addChild($1);
-            $$ = ret;
-        }
+		|
+		/* empty */
+		{
+			$$ = new node(ExprListNode);
+		}
 		;
 RightValue:
 		ID
 		{
-			Node* ret = new IdNode(string($1));
+			node* ret = new node(IDNode);
+			ret->name = string($1);
 			$$ = ret;
 		}
 		|
 		INTEGER
 		{
-			Node* ret = new IdNode($1);
+			node* ret = new node(IntNode);
+			ret->name = to_string($1);
 			$$ = ret;
 		}
 		;
@@ -166,121 +152,162 @@ Op1:
 LogicalOp:
 		EQUAL | NOTEQUAL | LESS | GREATER | AND | OR
 		;
-ParamList:
-        PARAM RightValue ParamList
-        {
-            Node* ret = new OtherNode();
-            ret->addChild($2);
-            ret->addChild($3);
-            $$ = ret;
-        }
-        |
-        PARAM RightValue
-        {
-            Node* ret = new OtherNode();
-            ret->addChild($2);
-            $$ = ret;
-        }
-        ;
 Expression:
 		ID ASSIGN RightValue Op2 RightValue
 		{
-            Node* ret = new ExprNode(Op2Type, string($4));
-            Node* var = new IdNode(string($1));
-            ret->addChild(var);
-            ret->addChild($3);
-            ret->addChild($5);
-            $$ = ret;
+			node* ret = new node(0);
+
+			node* idnode = new node(IDNode);
+			idnode->name = string($1);
+			node* opnode = new node(OpNode);
+			opnode->name = string($4);
+
+			ret->add_child(idnode);
+			ret->add_child($3);
+			ret->add_child(opnode);
+			ret->add_child($5);
+
+			$$ = ret;
 		}
 		|
 		ID ASSIGN Op1 RightValue
 		{
-            Node* ret = new ExprNode(Op1Type, string($3));
-            Node* var = new IdNode(string($1));
-            ret->addChild(var);
-            ret->addChild($4);
-            $$ = ret;
-		}
-        |
-		ID ASSIGN RightValue
-		{
-			Node* ret = new ExprNode(NoOpType, "");
-            Node* var = new IdNode(string($1));
-            ret->addChild(var);
-            ret->addChild($3);
-            $$ = ret;
+			node* ret = new node(1);
+
+			node* idnode = new node(IDNode);
+			idnode->name = string($1);
+			node* opnode = new node(OpNode);
+			opnode->name = string($3);
+
+			ret->add_child(idnode);
+			ret->add_child(opnode);
+			ret->add_child($4);
+
+			$$ = ret;			
 		}
 		|
 		ID LBRAC RightValue RBRAC ASSIGN RightValue
 		{
-            Node* ret = new ExprNode(StoreArrayType, "");
-            Node* var = new IdNode(string($1));
-            ret->addChild(var);
-            ret->addChild($3);
-            ret->addChild($6);
-            $$ = ret;
+			node* ret = new node(2);
+
+			node* idnode = new node(IDNode);
+			idnode->name = string($1);
+
+			ret->add_child(idnode);
+			ret->add_child($3);
+			ret->add_child($6);
+
+			$$ = ret;		
 		}
 		|
 		ID ASSIGN ID LBRAC RightValue RBRAC
 		{
-            Node* ret = new ExprNode(VisitArrayType, "");
-            Node* var = new IdNode(string($1));
-            Node* rightValue1 = new IdNode(string($3));
-            ret->addChild(var);
-            ret->addChild(rightValue1);
-            ret->addChild($5);
-            $$ = ret;
+			node* ret = new node(3);
+
+			node* id1node= new node(IDNode);
+			id1node->name = string($1);
+			node* id2node = new node(IDNode);
+			id2node->name = string($3);
+
+			ret->add_child(id1node);
+			ret->add_child(id2node);
+			ret->add_child($5);
+
+			$$ = ret;
 		}
 		|
 		IF RightValue LogicalOp RightValue GOTO LABEL
 		{
-            Node* ret = new ExprNode(IfBranchType, string($3), string($6));
-            ret->addChild($2);
-            ret->addChild($4);
-            $$ = ret;
+			node* ret = new node(4);
+
+			node* opnode = new node(OpNode);
+			opnode->name = string($3);
+
+			ret->name = string($6);
+
+			ret->add_child($2);
+			ret->add_child(opnode);
+			ret->add_child($4);
+			
+			$$ = ret;
 		}
 		|
 		GOTO LABEL
 		{
-            Node* ret = new ExprNode(GotoType, "", string($2));
+			node* ret = new node(5);
+			ret->name = string($2);
 			$$ = ret;
 		}
 		|
 		LABEL COLON
 		{
-			Node* ret = new ExprNode(LabelType, "", string($1));
-            $$ = ret;
+			node* ret = new node(6);
+			ret->name = string($1);
+			$$ = ret;
 		}
 		|
-		ParamList ID ASSIGN CALL FUNC
+		PARAM RightValue
 		{
-			Node* ret = new ExprNode(CallType, "", $5);
-            Node* var = new IdNode($2);
-            ret->addChild(var);
-            ret->addChild($1);
-            $$ = ret;            
+			node* ret = new node(7);
+			ret->add_child($2);
+			$$ = ret;
 		}
-        |
-        ID ASSIGN CALL FUNC
-        {
-            Node* ret = new ExprNode(CallType, "", $4);
-            Node* var = new IdNode($1);
-            ret->addChild(var);
-            $$ = ret;
-        }
+		|
+		ID ASSIGN CALL FUNC
+		{
+			node* ret = new node(8);
+			node* idnode = new node(IDNode);
+			idnode->name = string($1);
+			ret->add_child(idnode);
+			ret->name = string($4);
+			$$ = ret;
+		}
 		|
 		RETURN RightValue
 		{
-			Node* ret = new ExprNode(ReturnType, "");
-            ret->addChild($2);
-			//cerr << ((IdNode*)$2)->getValue() << endl;
-            $$ = ret;
+			node* ret = new node(9);
+			ret->add_child($2);
+			$$ = ret;
+		}
+		|
+		CALL FUNC
+		{
+			node* ret = new node(10);
+			ret->name = string($2);
+			$$ = ret;
+		}
+		|
+		ID ASSIGN RightValue
+		{
+			node* ret = new node(11);
+			node* idnode = new node(IDNode);
+			idnode->name = string($1);
+			ret->add_child(idnode);
+			ret->add_child($3);
+			$$ = ret;
 		}
 		;
 
 %%
-#include "lex.yy.c"
+#include "lex.cc"
 int main(int argc, char* argv[]){
+	init_reg();
 	ios::sync_with_stdio();
+#ifdef LOCAL
+	FILE* inputFile;
+	if(argc==1){
+		inputFile = fopen("input.c", "r");
+	}
+	else{
+		inputFile = fopen(argv[1], "r");
+		outputFile = fopen(argv[2], "wb");
+	}
+	if (!inputFile) {
+		printf("I can't open input file!");
+		return -1;
+	}
+	yyin = inputFile;
+	yyout = outputFile;
+#endif
     yyparse();
 }

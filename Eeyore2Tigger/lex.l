@@ -13,7 +13,7 @@ void redirectInput(){
 }
 %}
 digit   [0-9]
-int     [0-9]+
+int     {digit}+
 id      [a-zA-Z_][a-zA-Z0-9_]*
 blank    ([ \f\r\t\v]+)*
 %%
