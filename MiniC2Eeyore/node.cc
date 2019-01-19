@@ -80,6 +80,7 @@ FuncNode::FuncNode():Node(FuncNodeType){};
  *-----------------------------------------------*/
 ExprNode::ExprNode():Node(ExprNodeType){
     isInteger = false;
+    isID = false;
     valueID = string();
 };
 
