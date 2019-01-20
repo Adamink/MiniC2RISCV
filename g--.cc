@@ -34,7 +34,11 @@ int main(int argc, char** argv){
         dst = args[locate+1];
     }
     stringstream cmd = stringstream();
-    cmd << "./MiniC2Eeyore/eeyore " << args[1] << " < " << args[1] << " > c2e.log";
+    cmd << "rm -f error.log";
+    system((cmd.str()).c_str());
+    cmd.str("");
+    
+    cmd << "./MiniC2Eeyore/eeyore " << args[1] << " < " << args[1] << " > c2e.log 2>> error.log";
     int status = system((cmd.str()).c_str());
     cmd.str("");
     if(status==0){
@@ -42,6 +46,11 @@ int main(int argc, char** argv){
         system((cmd.str()).c_str());
         cmd.str("");
         cmd << "./Tigger2RISC-V/riscv64 < e2t.log > " << dst;
+        system((cmd.str()).c_str());
+        cmd.str("");
+    }
+    else{
+        cmd << "rm -f " << dst;
         system((cmd.str()).c_str());
         cmd.str("");
     }
