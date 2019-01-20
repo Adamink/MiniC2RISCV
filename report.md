@@ -479,6 +479,167 @@ MiniC2Eeyore的时候，代码生成比较直接，直接on-the-fly代码生成�
 - 留出额外的调用者保存寄存器作为临时变量，考虑到类似将全局变量保存没有直接的指令，还是需要留出临时寄存器的
 - 对于每一个语句，考虑左值和右值有交集的情况，考虑右值中有整数可以进行化简
 
+###　活跃变量分析
+
+我之后试图重构源代码的代码中，按照课件上的方法，在每一个函数里将每一条语句视作基本块，从后向前地扫描，不断更新每条语句的OUT活跃变量集。这一部分代码大致如下。但重构的代码没有完成，现在使用的策略还是更简单的策略。
+
+```c++
+// 计算每个孩子Expr的活跃变量
+// 调用calSuccForExprs和calAliveVarsForExprs
+void FuncNode::analyzeLiveness(){
+    calSuccForExprs();	//得到后继语句
+    calAliveVarsForExprs(); //得到OUT活跃变量集
+}
+// 为所有孩子ExprNode计算后继语句集
+void FuncNode::calSuccForExprs(){
+    for(int i = 0;i<children.size();i++){
+        ExprNode* child = (ExprNode*)children[i];
+        ExprType childType = child->getExprType();
+        //　条件语句的后继语句为后一条和跳转到的语句
+        if(childType==IfBranchType){
+            if(i!=children.size()-1){
+                ExprNode* nextChild = (ExprNode*)children[i+1];
+                child->addSuccExpr(nextChild);
+            }
+            string label = child->getLabel();
+            ExprNode* jumpToNode = searchLabel(label);
+            child->addSuccExpr(jumpToNode);
+        }
+        //　goto语句的后继语句为跳转到的语句
+        else if(childType==GotoType){
+            string label = child->getLabel();
+            ExprNode* jumpToNode = searchLabel(label);
+            child->addSuccExpr(jumpToNode);      
+        }
+        //　其它语句的后继语句是后一条语句
+        else{
+            if(i!=children.size()-1){
+                ExprNode* nextChild = (ExprNode*)children[i+1];
+                child->addSuccExpr(nextChild);
+            }
+        }
+    }
+}
+// 迭代地从后向前扫描更新每个Expr的活跃变量集
+void FuncNode::calAliveVarsForExprs(){
+    bool hasChanged = false;
+    while(true){
+        for(auto it = children.rbegin();it!=children.rend();++it){
+            ExprNode* child = (ExprNode*)(*it);
+
+            // newSet = (join - left) U right
+            set<IdNode*> oldAliveVarSet = child->getAliveVarSet();
+            set<IdNode*> joinAliveVarSet = child->getJoinAliveVarSet();
+            set<IdNode*> leftValueVarSet = child->getLeftValueVarSet();
+            set<IdNode*> rightValueVarSet = child->getRightValueVarSet();
+            
+            set<IdNode*> tmp;
+            set<IdNode*> newAliveVarSet;
+            set_difference(oldAliveVarSet.begin(), oldAliveVarSet.end(), 
+            leftValueVarSet.begin(), leftValueVarSet.end(),tmp);
+            set_union(tmp.begin(),tmp.end(),rightValueVarSet.begin(), 
+            rightValueVarSet.end(), newAliveVarSet);
+
+            child->setAliveVarSet(newAliveVarSet);
+			
+            if(!hasChanged){
+                hasChanged = !equal(newAliveVarSet.begin(), newAliveVarSet.end(), 
+                oldAliveVarSet.begin(), oldAliveVarSet.end());
+            }
+        }
+        //　未发生改变则终止循环
+        if(!hasChanged) break;
+    }
+}
+```
+
+目前的策略是，按照变量出现的范围，直接将该范围的闭包指定为这个变量的活跃区间，这样做简单安全不容易出错，且在给定的寄存器数量情况下，效率也并不低。
+
+代码实现如下
+
+```c++
+// 遇到某个变量时，根据行数更新它的周期
+void setNameRange(node* p){
+    string idName = p->name;
+    int i = 0;
+    int l = ancestor->idTable.size();
+    bool isArray_ = p->isArray;
+
+    for(i = 0; i < l; i++){
+        if(ancestor->idTable[i].name == idName){
+            ancestor->idTable[i].start = min(ancestor->idTable[i].start, exprCnt);
+            ancestor->idTable[i].end = max(ancestor->idTable[i].end, exprCnt);
+            // ancestor->idTable[i].spillTime = ancestor->idTable[i].end;
+            return;
+        }
+    }
+    if(i==l){//没找到，可能是第一次，也可能是全局变量
+        if(globalTable.find(idName)!=globalTable.end()){
+            //全局变量
+            idType in = globalTable[idName];
+            idType pushed_in = in;
+            pushed_in.start = pushed_in.end = exprCnt;
+            pushed_in.spillTime = INF;
+            pushed_in.name = idName;
+            ancestor->idTable.push_back(pushed_in);
+        }
+        else{
+            //第一次遇到的局部变量
+            ancestor->idTable.push_back(idType(idName, exprCnt,false, isArray_));
+        }
+    }
+}
+```
+
+###　线性扫描分配寄存器
+
+在重构的代码中，我也实现了线性扫描分配寄存器的方法，但是时间紧张，没法debug了，所以还是采取了更为trivial的方法。下面是线性扫描分配寄存器的部分代码。
+
+```c++
+    for(auto& it:idTable){
+
+        // 释放周期已经结束的变量对应的寄存器
+        for(auto& jt:liveQueue){
+            if(jt->end < it.start){
+                r.release(jt->regsiter);
+            }
+        }
+        // 并从队列中移除
+        remove_liveQueue(it.start);
+        
+        // 给从start开始的变量it分配寄存器
+
+        // 寄存器未满直接分配寄存器
+        if(!r.full()){
+            it.regsiter = r.acquire();
+            insert_liveQueue(&it);
+        }
+        // 寄存器已满
+        else{
+            idType* last = liveQueue.back();
+            // 队尾变量截止时间晚，将队尾变量入栈，
+            // 给it分配寄存器并入队
+            if(last->end > it.end){
+                last->spillTime = it.start - 1;
+                r.release(last->regsiter);
+                liveQueue.pop_back();
+                it.regsiter = r.acquire();
+                insert_liveQueue(&it);
+            }
+            // 队尾变量截止时间早，将it入栈
+            else {
+                it.regsiter = -1;
+            }
+        }
+    }
+```
+
+实现中采用的方法是将变量按活跃起始顺序排序，依次给变量指派寄存器。不能放入寄存器的指派栈空间。
+
+
+
+
+
 ## Tigger2RISC-V
 
 这一部分比较简单，但我也花了非常多时间来debug。具体情况是，我的Eeyore2Tigger代码通过了测评，但RISC-V无法通过测评，但这一步其实是相当简单的直接翻译。我最终克服心理障碍找了同学要了一份他的代码，做了交叉实验后得到以下结果。
