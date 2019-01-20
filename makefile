@@ -23,10 +23,14 @@ $(R):
 	$(MAKE) -C $(DIR_R)
 
 tar: $(SOURCE)
-	tar -cvf 吴箫_1600012807.tar *
+	make clean
+	tar -cvf 吴箫_1600012807.tar $(DIR_E) $(DIR_T) $(DIR_R) $(DIR_EXAMPLE) g--.cc makefile README.md report.md report.pdf
 
 clean: 
 	@rm -rf $(OBJECT) $(E) $(T) $(R) 吴箫_1600012807.tar *.o $(EXAMPLE) error.log
+	$(MAKE) clean -C $(DIR_E)
+	$(MAKE) clean -C $(DIR_T)
+	$(MAKE) clean -C $(DIR_R)
 
 example: $(EXAMPLE)
 
