@@ -34,10 +34,7 @@ int main(int argc, char** argv){
         dst = args[locate+1];
     }
     stringstream cmd = stringstream();
-    cmd << "rm -f error.log";
-    system((cmd.str()).c_str());
-    cmd.str("");
-    
+
     cmd << "./MiniC2Eeyore/eeyore " << args[1] << " < " << args[1] << " > c2e.log 2>> error.log";
     int status = system((cmd.str()).c_str());
     cmd.str("");
@@ -55,6 +52,10 @@ int main(int argc, char** argv){
         cmd.str("");
     }
     cmd << "rm -f c2e.log e2t.log eeyore.log";
+    system((cmd.str()).c_str());
+    cmd.str("");
+    
+    cmd << "cat error.log";
     system((cmd.str()).c_str());
     cmd.str("");
     return 0;

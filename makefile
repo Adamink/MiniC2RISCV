@@ -26,7 +26,7 @@ tar: $(SOURCE)
 	tar -cvf 吴箫_1600012807.tar *
 
 clean: 
-	@rm -rf $(OBJECT) $(E) $(T) $(R) 吴箫_1600012807.tar *.o $(EXAMPLE)
+	@rm -rf $(OBJECT) $(E) $(T) $(R) 吴箫_1600012807.tar *.o $(EXAMPLE) error.log
 
 example: $(EXAMPLE)
 
