@@ -4,6 +4,10 @@ This repository implements a simple compiler that turns MiniC code, whose gramma
 
 The code was written by Xiao Wu.
 
+Further updates would be presented on [github](https://github.com/Adamink/MiniC2RISC-V).
+
+As for the course report, click [here](report.pdf).
+
 ## Prerequisites
 
 - Linux
