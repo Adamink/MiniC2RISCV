@@ -6,7 +6,7 @@ The code was written by Xiao Wu.
 
 Further updates would be presented on [github](https://github.com/Adamink/MiniC2RISC-V).
 
-As for the course report, click [here](report.pdf).
+As for the course report, click [pdf](report.pdf) or [md](report.md).
 
 ## Prerequisites
 
