@@ -33,7 +33,7 @@ As for the course report, click [pdf](report.pdf) or [md](report.md).
 - The executable file is `g--`, to compile a MiniC file, type
 
   ```txt
-  ./g-- example/1.c -o example/1.o 
+  ./g-- example/1.c -o example/1.s
   ```
 
   or simply
