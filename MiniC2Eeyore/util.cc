@@ -174,6 +174,8 @@ void printFinal(){
 int main(int argc, char *argv[]){
     char fileName[20] = "eeyore.log";
     debugging(separateLine("Input Code"));
+    if(argc >=2)
+        inputFileName = string(argv[1]);
     setInput(fileName);
     yyin = fopen(fileName,"r");
     debugging(separateLine("Debugging Info"));

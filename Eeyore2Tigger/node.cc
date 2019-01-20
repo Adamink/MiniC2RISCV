@@ -898,7 +898,7 @@ void node::gen_code(){
             // 恢复栈中callee_save的寄存器
             for(auto & p:stackSpace){
                 int tmp;
-                cerr << p.first << " " << p.second << endl;
+                // cerr << p.first << " " << p.second << endl;
                 if(isdigit(p.first[0])&&!(tmp=r.caller_save(stoi(p.first)))){
                     expr->code+="load " + to_string(p.second) + " " + regMap[stoi(p.first)] + "\n";
                 } 

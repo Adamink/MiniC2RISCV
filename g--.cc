@@ -3,9 +3,12 @@
 #include <cstring>
 #include <string>
 #include <sstream>
+#include <iostream>
 using namespace std;
 int main(int argc, char** argv){
-    assert(argc==2||argc==4);
+    if(argc!=2&&argc!=4){
+        cerr << "wrong input, please input a filename once at a time" << endl;
+    }
     string args[4];
     for(int i = 0;i<argc;i++){
         args[i] = string(argv[i]);
@@ -31,7 +34,7 @@ int main(int argc, char** argv){
         dst = args[locate+1];
     }
     stringstream cmd = stringstream();
-    cmd << "./MiniC2Eeyore/eeyore < " << args[1] << " > c2e.log";
+    cmd << "./MiniC2Eeyore/eeyore " << args[1] << " < " << args[1] << " > c2e.log";
     int status = system((cmd.str()).c_str());
     cmd.str("");
     if(status==0){
